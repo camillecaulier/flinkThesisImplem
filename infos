@@ -1,0 +1,3 @@
+SplitDAtaProperties -> implementation of partitioner
+
+i send to multiple subtasks, need to check if the data is already partitioned or not.

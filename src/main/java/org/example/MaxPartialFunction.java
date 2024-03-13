@@ -44,7 +44,7 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
         // Emit the updated maximum value for the key
         out.collect(new Tuple2<>(key, maxValues.get(key)));
 
-//        printMapState();
+        printMapState();
     }
 
     public void printMapState() throws Exception {

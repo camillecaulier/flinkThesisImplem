@@ -24,7 +24,7 @@ public class testingStuffNoWindows {
 
 
         DataStream<Tuple2<String, Integer>> mainStream = env
-                .addSource(new RandomStringSource()).keyBy(tuple -> tuple.f0)
+                .addSource(new RandomStringSource()).keyBy(tuple -> tuple.f0);
 //                .assignTimestampsAndWatermarks(strategy);
 
 
@@ -63,8 +63,11 @@ public class testingStuffNoWindows {
 
         DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
                 .partitionCustom(new ShufflePartitioner(), value->value.f0 )
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowProcessFunction());
+                .process(new MaxPartialFunction());
+
+
+        DataStream<Tuple2<String, Integer>> reconciliation = aggregation.process(new MaxPartialFunction());
+
 
 //                .process(new MaxPartialFunction()).keyBy(value->value.f0).process(new EvalFunction);
 

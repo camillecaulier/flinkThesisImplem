@@ -49,10 +49,11 @@ public class MaxPartialWindowProcessFunction extends ProcessAllWindowFunction<Tu
                 map.put(key, value.f1);
             }
         }
+
         for (String k : map.keySet()) {
             collector.collect(Tuple2.of(k, map.get(k)));
         }
-        printMapState();
+//        printMapState();
     }
 
     public void printMapState() throws Exception {

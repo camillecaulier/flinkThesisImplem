@@ -1,25 +1,19 @@
 package org.example;
 
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.Partitioner;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 
 import java.time.Duration;
-import java.util.Random;
 
-//import KeyGroupMetricProcessFunction;
-
-public class testingStuff {
+public class testingStuffNoWindows {
 
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
@@ -30,7 +24,8 @@ public class testingStuff {
 
 
         DataStream<Tuple2<String, Integer>> mainStream = env
-                .addSource(new RandomStringSource()).keyBy(tuple -> tuple.f0).assignTimestampsAndWatermarks(strategy);
+                .addSource(new RandomStringSource()).keyBy(tuple -> tuple.f0)
+//                .assignTimestampsAndWatermarks(strategy);
 
 
 
@@ -54,49 +49,17 @@ public class testingStuff {
         //basic operator
         DataStream<Tuple2<String, Integer>> operatorBasicStream = splitStream.getSideOutput(operatorBasicTag)
                 .process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
-            @Override
-            public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-                out.collect(new Tuple2<>(value.f0, value.f1 * 10));
-            }
-        });
+                    @Override
+                    public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
+                        out.collect(new Tuple2<>(value.f0, value.f1 * 10));
+                    }
+                });
 
 
 
         // time to do the thingy
         DataStream<Tuple2<String, Integer>> operatorAggregateStream = splitStream.getSideOutput(operatorAggregateTag);
-//                .process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
-//            @Override
-//            public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-//                out.collect(new Tuple2<>(value.f0, value.f1 * 100));
-//            }
-//        });
 
-
-        //set parallelism will be useful in order to fix the amount of subtasks
-//        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream.partitionCustom(new RandomPartitioner(), value->value.f0 )
-//                .process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
-//            @Override
-//            public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-//                out.collect(new Tuple2<>(value.f0, value.f1 * 10));
-//            }
-//        });
-
-//        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream.process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
-//            @Override
-//            public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-//                out.collect(new Tuple2<>(value.f0, value.f1 * 10));
-//            }
-//        });
-
-//        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream.partitionCustom(new RandomPartitioner(), value->value.f0 ).keyBy(value->value.f0)
-//                .maxBy(1);
-
-//        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream.partitionCustom(new ShufflePartitioner(), value->value.f0 ).process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
-//            @Override
-//            public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-//                out.collect(new Tuple2<>(value.f0, value.f1 * 10));
-//            }
-//        });
 
         DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
                 .partitionCustom(new ShufflePartitioner(), value->value.f0 )
@@ -123,7 +86,4 @@ public class testingStuff {
 
         env.execute("Key Group Metric Example");
     }
-
-
-
 }

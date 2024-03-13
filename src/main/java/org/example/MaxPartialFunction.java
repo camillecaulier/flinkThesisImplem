@@ -7,19 +7,23 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
+import java.util.HashMap;
 import java.util.Map;
 
 
 public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>> {
 
-    private transient MapState<String, Integer> maxValues;
+//    private transient MapState<String, Integer> maxValues;
+
+    private HashMap<String, Integer> maxValues;
 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
         // Initialize the MapState
-        MapStateDescriptor<String, Integer> descriptor = new MapStateDescriptor<>("maxValues", String.class, Integer.class);
-        maxValues = getRuntimeContext().getMapState(descriptor);
+//        MapStateDescriptor<String, Integer> descriptor = new MapStateDescriptor<>("maxValues", String.class, Integer.class);
+//        maxValues = getRuntimeContext().getMapState(descriptor);
+        maxValues = new HashMap<>();
     }
 
     @Override
@@ -30,7 +34,7 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
         // If no maximum value has been stored yet or the incoming value is greater, update the MapState
 
 
-        if(!maxValues.contains(key)){
+        if(!maxValues.containsKey(key)){
             maxValues.put(key, value.f1);
         }
         else if(value.f1 > maxValues.get(key)){
@@ -45,8 +49,8 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
 
     public void printMapState() throws Exception {
         System.out.println("Printing MapState contents:");
-        for (Map.Entry<String, Integer> entry : maxValues.entries()) {
-            System.out.println("Key: " + entry.getKey() + ", Value: " + entry.getValue());
+        for (String entry : maxValues.keySet()) {
+            System.out.println("Key: " + entry + ", Value: " + maxValues.get(entry));
         }
     }
 }

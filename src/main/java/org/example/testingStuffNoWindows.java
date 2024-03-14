@@ -18,14 +18,12 @@ public class testingStuffNoWindows {
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy.
-                <Tuple2<String, Integer>>forBoundedOutOfOrderness(Duration.ofSeconds(5)).withTimestampAssigner((event, timestamp) -> event.f1);
+        env.setParallelism(2);
 
 
         DataStream<Tuple2<String, Integer>> mainStream = env
                 .addSource(new RandomStringSource()).keyBy(tuple -> tuple.f0);
-//                .assignTimestampsAndWatermarks(strategy);
+
 
 
 
@@ -61,31 +59,20 @@ public class testingStuffNoWindows {
         DataStream<Tuple2<String, Integer>> operatorAggregateStream = splitStream.getSideOutput(operatorAggregateTag);
 
 
+        //how to find the number of parittions before
+
         DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
-                .partitionCustom(new ShufflePartitioner(), value->value.f0 )
+                .partitionCustom(new ShufflePartitioner(), value->value.f0 ) //any cast
                 .process(new MaxPartialFunction());
 
 
-        DataStream<Tuple2<String, Integer>> reconciliation = aggregation.process(new MaxPartialFunction());
-
-
-//                .process(new MaxPartialFunction()).keyBy(value->value.f0).process(new EvalFunction);
-
-//        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream.partitionCustom(new ShufflePartitioner(), value->value.f0 );
-
-
-//        aggregation.keyBy(value->value.f0).process(new ReconciliationFunction());
-
-        //this is not correct it's for union two STREAMS
-//        DataStream<Tuple2<String,Integer>> reconciliation = aggregation.union(operatorBasicStream);
-//        reconciliation.print("reconciliation");
-
-
+        DataStream<Tuple2<String, Integer>> reconciliation = aggregation.partitionCustom(new SingleCast(), value->value.f0 ).process(new MaxPartialFunction());
 
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
-        aggregation.print("aggregation");
+//        aggregation.print("aggregation");
+        reconciliation.print("reconciliation");
 
         env.execute("Key Group Metric Example");
     }

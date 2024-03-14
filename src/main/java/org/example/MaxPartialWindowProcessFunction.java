@@ -21,22 +21,7 @@ public class MaxPartialWindowProcessFunction extends ProcessAllWindowFunction<Tu
         map = new HashMap<>();
     }
 
-//    @Override
-//    public void process(String key, Context context, Iterable<Tuple2<String, Integer>> input, Collector<Tuple2<String, Integer>> out) throws Exception {
-//
-//        for(Tuple2<String, Integer> value : input){
-//            if(!map.containsKey(key)){
-//                map.put(key, value.f1);
-//            }
-//            else if(value.f1 > map.get(key)){
-//                map.put(key, value.f1);
-//            }
-//        }
-//        for (String k : map.keySet()) {
-//            out.collect(Tuple2.of(k, map.get(k)));
-//        }
-//
-//    }
+
 
     @Override
     public void process(Context context, Iterable<Tuple2<String, Integer>> input, Collector<Tuple2<String, Integer>> collector) throws Exception {
@@ -53,8 +38,25 @@ public class MaxPartialWindowProcessFunction extends ProcessAllWindowFunction<Tu
         for (String k : map.keySet()) {
             collector.collect(Tuple2.of(k, map.get(k)));
         }
-//        printMapState();
+        printMapState();
     }
+
+    //    @Override
+//    public void process(String key, Context context, Iterable<Tuple2<String, Integer>> input, Collector<Tuple2<String, Integer>> out) throws Exception {
+//
+//        for(Tuple2<String, Integer> value : input){
+//            if(!map.containsKey(key)){
+//                map.put(key, value.f1);
+//            }
+//            else if(value.f1 > map.get(key)){
+//                map.put(key, value.f1);
+//            }
+//        }
+//        for (String k : map.keySet()) {
+//            out.collect(Tuple2.of(k, map.get(k)));
+//        }
+//
+//    }
 
     public void printMapState() throws Exception {
         System.out.println("Printing MapState contents:");

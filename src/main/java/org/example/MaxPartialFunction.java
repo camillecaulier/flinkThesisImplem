@@ -29,7 +29,6 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
     @Override
     public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
         String key = value.f0;
-//        Integer currentMax = maxValues.get(key);
 
         // If no maximum value has been stored yet or the incoming value is greater, update the MapState
 
@@ -44,7 +43,7 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
         // Emit the updated maximum value for the key
         out.collect(new Tuple2<>(key, maxValues.get(key)));
 
-        printMapState();
+//        printMapState();
     }
 
     public void printMapState() throws Exception {

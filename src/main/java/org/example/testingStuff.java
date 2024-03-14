@@ -105,10 +105,10 @@ public class testingStuff {
 
 
         //this is probably not correct as is, since unable to get correct values at the end
-        DataStream<Tuple2<String, Integer>> reconciliation = aggregation.windowAll(TumblingEventTimeWindows.of(Time.seconds(1)))
+        DataStream<Tuple2<String, Integer>> reconciliation = aggregation.windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
                 .process(new MaxPartialWindowProcessFunction());
 
-        reconciliation.print("reconciliation");
+
 
 //                .process(new MaxPartialFunction()).keyBy(value->value.f0).process(new EvalFunction);
 
@@ -126,7 +126,9 @@ public class testingStuff {
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
-//        aggregation.print("aggregation");
+        aggregation.print("aggregation");
+
+        reconciliation.print("reconciliation");
 
         env.execute("Key Group Metric Example");
     }

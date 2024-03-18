@@ -1,24 +1,19 @@
 package org.example;
 
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
-
-import java.time.Duration;
 
 public class testingStuffNoWindows {
 
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(2);
+//        env.setParallelism(2);
 
 
         DataStream<Tuple2<String, Integer>> mainStream = env
@@ -40,12 +35,12 @@ public class testingStuffNoWindows {
         OutputTag<Tuple2<String, Integer>> operatorBasicTag = new OutputTag<Tuple2<String, Integer>>("operatorBasic"){};
 
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
-        SingleOutputStreamOperator<Tuple2<String, Integer>> splitStream = processedStream
+        SingleOutputStreamOperator<Tuple2<String, Integer>> popularFilterStream = processedStream
                 .process(new splitProcessFunction(operatorAggregateTag, operatorBasicTag));
 
 
         //basic operator
-        DataStream<Tuple2<String, Integer>> operatorBasicStream = splitStream.getSideOutput(operatorBasicTag)
+        DataStream<Tuple2<String, Integer>> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
                     @Override
                     public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
@@ -56,13 +51,13 @@ public class testingStuffNoWindows {
 
 
         // time to do the thingy
-        DataStream<Tuple2<String, Integer>> operatorAggregateStream = splitStream.getSideOutput(operatorAggregateTag);
+        DataStream<Tuple2<String, Integer>> operatorAggregateStream = popularFilterStream.getSideOutput(operatorAggregateTag);
 
 
         //how to find the number of parittions before
 
         DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
-                .partitionCustom(new ShufflePartitioner(), value->value.f0 ) //any cast
+                .partitionCustom(new RoundRobin(), value->value.f0 ) //any cast
                 .process(new MaxPartialFunction());
 
 
@@ -71,6 +66,7 @@ public class testingStuffNoWindows {
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
+//        popularFilterStream.print("popularFilterStream");
 //        aggregation.print("aggregation");
         reconciliation.print("reconciliation");
 

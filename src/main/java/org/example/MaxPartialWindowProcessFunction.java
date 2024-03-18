@@ -38,7 +38,7 @@ public class MaxPartialWindowProcessFunction extends ProcessAllWindowFunction<Tu
         for (String k : map.keySet()) {
             collector.collect(Tuple2.of(k, map.get(k)));
         }
-        printMapState();
+//        printMapState();
     }
 
     //    @Override

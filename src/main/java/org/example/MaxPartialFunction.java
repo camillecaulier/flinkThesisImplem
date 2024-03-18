@@ -15,7 +15,7 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
 
 //    private transient MapState<String, Integer> maxValues;
 
-    private HashMap<String, Integer> maxValues;
+    private volatile HashMap<String, Integer> maxValues;
 
     @Override
     public void open(Configuration parameters) throws Exception {
@@ -31,13 +31,13 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
         String key = value.f0;
 
         // If no maximum value has been stored yet or the incoming value is greater, update the MapState
-
-
-        if(!maxValues.containsKey(key)){
-            maxValues.put(key, value.f1);
-        }
-        else if(value.f1 > maxValues.get(key)){
-            maxValues.put(key, value.f1);
+        synchronized (this){
+            if(!maxValues.containsKey(key)){
+                maxValues.put(key, value.f1);
+            }
+            else if(value.f1 > maxValues.get(key)){
+                maxValues.put(key, value.f1);
+            }
         }
 
         // Emit the updated maximum value for the key

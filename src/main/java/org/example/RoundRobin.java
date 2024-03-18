@@ -2,13 +2,11 @@ package org.example;
 
 import org.apache.flink.api.common.functions.Partitioner;
 
-import java.util.Random;
-
-public class ShufflePartitioner implements Partitioner<String> {
+public class RoundRobin implements Partitioner<String> {
 
     int index;
 
-    ShufflePartitioner() {
+    RoundRobin() {
         index = 0;
     }
 

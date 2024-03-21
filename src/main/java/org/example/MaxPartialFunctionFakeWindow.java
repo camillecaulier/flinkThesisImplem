@@ -8,19 +8,25 @@ import org.apache.flink.util.Collector;
 import java.util.HashMap;
 
 
-public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>> {
+public class MaxPartialFunctionFakeWindow extends ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>> {
 
-//    private transient MapState<String, Integer> maxValues;
 
+
+    volatile long previousWindowTime;
+    volatile long nextWindowTime;
+    long windowTime;
     private volatile HashMap<String, Integer> maxValues;
+
+    public MaxPartialFunctionFakeWindow(long i) {
+        windowTime = i;
+    }
+
 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        // Initialize the MapState
-//        MapStateDescriptor<String, Integer> descriptor = new MapStateDescriptor<>("maxValues", String.class, Integer.class);
-//        maxValues = getRuntimeContext().getMapState(descriptor);
         maxValues = new HashMap<>();
+
     }
 
     @Override
@@ -38,10 +44,29 @@ public class MaxPartialFunction extends ProcessFunction<Tuple2<String, Integer>,
                 out.collect(new Tuple2<>(key, maxValues.get(key)));
             }
         }
+        if(nextWindowTime == 0){
+            nextWindowTime = ctx.timestamp() + windowTime;
+            ctx.timerService().registerEventTimeTimer(nextWindowTime);
+        }
 
-        // Emit the updated maximum value for the key
+
+        // output in ms 60 = 60 000
+//        ctx.timerService().registerEventTimeTimer(ctx.timestamp() + 60000);
 
 //        printMapState();
+    }
+
+    @Override
+    public void onTimer(long timestamp, OnTimerContext ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
+        synchronized (maxValues){
+            for (String k : maxValues.keySet()) {
+                out.collect(Tuple2.of(k, maxValues.get(k)));
+            }
+        }
+
+        nextWindowTime = nextWindowTime + windowTime;
+        ctx.timerService().registerEventTimeTimer(nextWindowTime);
+
     }
 
     public void printMapState() throws Exception {

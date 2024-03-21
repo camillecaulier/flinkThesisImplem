@@ -20,9 +20,9 @@ public class splitProcessFunction extends ProcessFunction<Tuple2<String, Integer
 //        is popular()
         if (value.f0.equals("A") || value.f0.equals("B") || value.f0.equals("C")){
             ctx.output(hotKeyOperatorTag, value); //send to operator 1
-            if (value.f1 >= 94){
-                System.out.println("key" + value.f0 + " " + value.f1);
-            }
+//            if (value.f1 >= 94){
+//                System.out.println("key" + value.f0 + " " + value.f1);
+//            }
         } else {
             ctx.output(operator2OutputTag, value); //send to operator 2
         }

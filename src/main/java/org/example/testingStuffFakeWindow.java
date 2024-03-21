@@ -1,36 +1,34 @@
 package org.example;
 
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 
-public class testingStuffHybrid {
+public class testingStuffFakeWindow {
 
     public static void main(String[] args) throws Exception {
+        // Set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-
-        WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
-                .<Tuple2<String, Integer>>forMonotonousTimestamps()
-                .withTimestampAssigner((element, previousTimestamp) -> System.currentTimeMillis());
-
+//        env.setParallelism(2);
 
 
         DataStream<Tuple2<String, Integer>> mainStream = env
-                .addSource(new RandomStringSource())
-                .keyBy(tuple -> tuple.f0)
-                .assignTimestampsAndWatermarks(strategy);
+                .addSource(new RandomStringSource()).keyBy(tuple -> tuple.f0);
 
 
 
-        DataStream<Tuple2<String, Integer>> processedStream = mainStream
-                .keyBy(value-> value.f0);
+
+
+        DataStream<Tuple2<String, Integer>> processedStream = mainStream.keyBy(value-> value.f0);
+//                .process(new KeyGroupMetricProcessFunction());
+
+//        DataStream<Tuple2<String, Integer>> processedStream = mainStream.keyBy(value-> value.f0)
+//                .process(new KeyGroupMetricBroadcastProcessFunction());
+
 
         // Create OutputTags for different operators
         OutputTag<Tuple2<String, Integer>> operatorAggregateTag = new OutputTag<Tuple2<String, Integer>>("operatorAggregate"){};
@@ -56,31 +54,23 @@ public class testingStuffHybrid {
         DataStream<Tuple2<String, Integer>> operatorAggregateStream = popularFilterStream.getSideOutput(operatorAggregateTag);
 
 
-        DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
-//                .keyBy(value-> value.f0)
-                .partitionCustom(new RoundRobin(), value->value.f0 )
+        //how to find the number of parittions before
+
+        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
+                .partitionCustom(new RoundRobin(), value->value.f0 ) //any cast
                 .process(new MaxPartialFunction());
 
 
-
-        //this is probably not correct as is, since unable to get correct values at the end
-        DataStream<Tuple2<String, Integer>> aggregate = split
+        DataStream<Tuple2<String, Integer>> reconciliation = aggregation
                 .partitionCustom(new SingleCast(), value->value.f0 )
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowProcessFunction());
-
-
-        System.out.println(aggregate.getParallelism());
-
-
-
+                .process(new MaxPartialFunction());
 
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
-        split.print("split");
-
-        aggregate.print("aggregate");
+//        popularFilterStream.print("popularFilterStream");
+        aggregation.print("aggregation");
+        reconciliation.print("reconciliation");
 
         env.execute("Key Group Metric Example");
     }

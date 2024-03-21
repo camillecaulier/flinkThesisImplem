@@ -58,16 +58,18 @@ public class testingStuffNoWindows {
 
         DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
                 .partitionCustom(new RoundRobin(), value->value.f0 ) //any cast
+                .process(new MaxPartialFunctionFakeWindow(5));
+
+
+        DataStream<Tuple2<String, Integer>> reconciliation = aggregation
+                .partitionCustom(new SingleCast(), value->value.f0 )
                 .process(new MaxPartialFunction());
-
-
-        DataStream<Tuple2<String, Integer>> reconciliation = aggregation.partitionCustom(new SingleCast(), value->value.f0 ).process(new MaxPartialFunction());
 
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
 //        popularFilterStream.print("popularFilterStream");
-//        aggregation.print("aggregation");
+        aggregation.print("aggregation");
         reconciliation.print("reconciliation");
 
         env.execute("Key Group Metric Example");

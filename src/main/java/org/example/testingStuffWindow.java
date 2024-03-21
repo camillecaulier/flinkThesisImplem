@@ -18,6 +18,7 @@ public class testingStuffWindow {
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+//        env.setParallelism(1);
 
 
         WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
@@ -43,12 +44,12 @@ public class testingStuffWindow {
         OutputTag<Tuple2<String, Integer>> operatorBasicTag = new OutputTag<Tuple2<String, Integer>>("operatorBasic"){};
 
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
-        SingleOutputStreamOperator<Tuple2<String, Integer>> splitStream = processedStream
+        SingleOutputStreamOperator<Tuple2<String, Integer>> switchStream = processedStream
                 .process(new splitProcessFunction(operatorAggregateTag, operatorBasicTag));
 
 
         //basic operator
-        DataStream<Tuple2<String, Integer>> operatorBasicStream = splitStream.getSideOutput(operatorBasicTag)
+        DataStream<Tuple2<String, Integer>> operatorBasicStream = switchStream.getSideOutput(operatorBasicTag)
                 .process(new ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>>() {
             @Override
             public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
@@ -59,24 +60,26 @@ public class testingStuffWindow {
 
 
         // time to do the thingy
-        DataStream<Tuple2<String, Integer>> operatorAggregateStream = splitStream.getSideOutput(operatorAggregateTag);
+        DataStream<Tuple2<String, Integer>> operatorAggregateStream = switchStream
+                .getSideOutput(operatorAggregateTag);
 
 
-        DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
+        DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
                 .partitionCustom(new RoundRobin(), value->value.f0 )
                 .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
                 .process(new MaxPartialWindowProcessFunction());
 
 
         //this is probably not correct as is, since unable to get correct values at the end
-        DataStream<Tuple2<String, Integer>> reconciliation = aggregation
+        DataStream<Tuple2<String, Integer>> reconciliation = split
                 .partitionCustom(new SingleCast(), value->value.f0 )
                 .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
                 .process(new MaxPartialWindowProcessFunction());
 
+//        reconciliation.setParallelism(1);
 
         //this is not correct it's for union two STREAMS
-//        DataStream<Tuple2<String,Integer>> reconciliation = aggregation.union(operatorBasicStream);
+//        DataStream<Tuple2<String,Integer>> reconciliation = split.union(operatorBasicStream);
 //        reconciliation.print("reconciliation");
 
 
@@ -84,7 +87,7 @@ public class testingStuffWindow {
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
-        aggregation.print("aggregation");
+        split.print("split");
 
         reconciliation.print("reconciliation");
 

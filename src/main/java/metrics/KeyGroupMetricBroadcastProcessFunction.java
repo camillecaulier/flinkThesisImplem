@@ -1,4 +1,4 @@
-package org.example;
+package metrics;
 import org.apache.flink.api.common.state.BroadcastState;
 import org.apache.flink.api.common.state.MapState;
 import org.apache.flink.api.common.state.MapStateDescriptor;

@@ -1,4 +1,4 @@
-package org.example;
+package processFunctions;
 
 import org.apache.flink.api.common.state.ReducingState;
 import org.apache.flink.api.common.state.ReducingStateDescriptor;

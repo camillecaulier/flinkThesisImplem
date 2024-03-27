@@ -1,16 +1,9 @@
-package org.example;
-import org.apache.flink.util.OutputTag;
-import org.example.KeyGroupMetricProcessFunction;
+package godSaveMeIDontknowWhatThisHas;
 
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.configuration.Configuration;
-import org.apache.flink.metrics.Counter;
-import org.apache.flink.metrics.MetricGroup;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
-import org.apache.flink.util.Collector;
 
 public class Tree {
     public static void main(String[] args) throws Exception {

@@ -1,5 +1,7 @@
-package org.example;
+package testingStuff;
 
+import keygrouping.RoundRobin;
+import keygrouping.SingleCast;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -7,6 +9,9 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import popularKeySwitch.splitProcessFunction;
+import processFunctions.MaxPartialFunctionFakeWindow;
+import sourceGeneration.RandomStringSource;
 
 public class testingStuffFakeWindow {
 
@@ -58,12 +63,12 @@ public class testingStuffFakeWindow {
 
         DataStream<Tuple2<String, Integer>> aggregation = operatorAggregateStream
                 .partitionCustom(new RoundRobin(), value->value.f0 ) //any cast
-                .process(new MaxPartialFunction());
+                .process(new MaxPartialFunctionFakeWindow(5));
 
 
         DataStream<Tuple2<String, Integer>> reconciliation = aggregation
                 .partitionCustom(new SingleCast(), value->value.f0 )
-                .process(new MaxPartialFunction());
+                .process(new MaxPartialFunctionFakeWindow(1));
 
 
 //        operatorAggregateStream.print("operatorAggregateStream");

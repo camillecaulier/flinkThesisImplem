@@ -1,4 +1,4 @@
-package org.example;
+package godSaveMeIDontknowWhatThisHas;
 
 public class AggregateRichProcessFunction {
 }

@@ -1,5 +1,7 @@
-package org.example;
+package testingStuff;
 
+import keygrouping.RoundRobin;
+import keygrouping.SingleCast;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -10,9 +12,12 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
+import popularKeySwitch.splitProcessFunction;
+import processFunctions.MaxPartialFunction;
+import processFunctions.MaxPartialWindowProcessFunction;
+import sourceGeneration.RandomStringSource;
 
-public class testingStuffHybrid {
-
+public class testingStuffHybridWindowKeyed {
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 
@@ -60,7 +65,9 @@ public class testingStuffHybrid {
 //                .keyBy(value-> value.f0)
                 .partitionCustom(new RoundRobin(), value->value.f0 )
                 .process(new MaxPartialFunction());
+//                .setParallelism(10);
 
+//        split.setParallelism(2);
 
 
         //this is probably not correct as is, since unable to get correct values at the end

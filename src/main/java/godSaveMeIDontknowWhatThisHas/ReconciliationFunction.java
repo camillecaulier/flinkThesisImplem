@@ -1,4 +1,4 @@
-package org.example;
+package godSaveMeIDontknowWhatThisHas;
 import org.apache.flink.api.common.functions.Partitioner;
 import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.api.java.tuple.Tuple2;

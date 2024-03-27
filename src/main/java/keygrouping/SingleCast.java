@@ -1,4 +1,4 @@
-package org.example;
+package keygrouping;
 
 import org.apache.flink.api.common.functions.Partitioner;
 

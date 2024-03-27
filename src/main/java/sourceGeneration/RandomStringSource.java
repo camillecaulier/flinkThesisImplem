@@ -1,4 +1,4 @@
-package org.example;
+package sourceGeneration;
 
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.flink.api.java.tuple.Tuple2;

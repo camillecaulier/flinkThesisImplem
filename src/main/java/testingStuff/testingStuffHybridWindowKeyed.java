@@ -1,7 +1,6 @@
 package testingStuff;
 
 import keygrouping.RoundRobin;
-import keygrouping.SingleCast;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -14,7 +13,7 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.splitProcessFunction;
 import processFunctions.MaxPartialFunction;
-import processFunctions.MaxPartialWindowProcessFunction;
+import processFunctions.MaxWindowProcessFunction;
 import sourceGeneration.RandomStringSource;
 
 public class testingStuffHybridWindowKeyed {
@@ -24,7 +23,6 @@ public class testingStuffHybridWindowKeyed {
         WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
                 .<Tuple2<String, Integer>>forMonotonousTimestamps()
                 .withTimestampAssigner((element, previousTimestamp) -> System.currentTimeMillis());
-
 
 
         DataStream<Tuple2<String, Integer>> mainStream = env
@@ -62,25 +60,18 @@ public class testingStuffHybridWindowKeyed {
 
 
         DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
-//                .keyBy(value-> value.f0)
                 .partitionCustom(new RoundRobin(), value->value.f0 )
                 .process(new MaxPartialFunction());
-//                .setParallelism(10);
-
-//        split.setParallelism(2);
 
 
-        //this is probably not correct as is, since unable to get correct values at the end
+
         DataStream<Tuple2<String, Integer>> aggregate = split
-                .partitionCustom(new SingleCast(), value->value.f0 )
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowProcessFunction());
+                .keyBy(value-> value.f0)
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .process(new MaxWindowProcessFunction()).setParallelism(1);
 
 
-        System.out.println(aggregate.getParallelism());
-
-
-
+        System.out.println(aggregate.getParallelism() + " parallelism of aggregate");
 
 
 //        operatorAggregateStream.print("operatorAggregateStream");

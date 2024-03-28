@@ -6,7 +6,7 @@ public class RoundRobin implements Partitioner<String> {
 
     int index;
 
-    RoundRobin() {
+    public RoundRobin() {
         index = 0;
     }
 

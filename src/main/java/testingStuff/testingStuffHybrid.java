@@ -14,7 +14,7 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.splitProcessFunction;
 import processFunctions.MaxPartialFunction;
-import processFunctions.MaxPartialWindowProcessFunction;
+import processFunctions.MaxPartialWindowAllProcessFunction;
 import sourceGeneration.RandomStringSource;
 
 public class testingStuffHybrid {
@@ -75,7 +75,7 @@ public class testingStuffHybrid {
         DataStream<Tuple2<String, Integer>> aggregate = split
                 .partitionCustom(new SingleCast(), value->value.f0 )
                 .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowProcessFunction());
+                .process(new MaxPartialWindowAllProcessFunction());
 
 
         System.out.println(aggregate.getParallelism());

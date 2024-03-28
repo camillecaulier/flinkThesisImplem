@@ -13,7 +13,7 @@ import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import popularKeySwitch.splitProcessFunction;
-import processFunctions.MaxPartialWindowProcessFunction;
+import processFunctions.MaxPartialWindowAllProcessFunction;
 import sourceGeneration.RandomStringSource;
 
 //import KeyGroupMetricProcessFunction;
@@ -72,14 +72,14 @@ public class testingStuffWindow {
         DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
                 .partitionCustom(new RoundRobin(), value->value.f0 )
                 .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowProcessFunction());
+                .process(new MaxPartialWindowAllProcessFunction());
 
 
         //this is probably not correct as is, since unable to get correct values at the end
         DataStream<Tuple2<String, Integer>> reconciliation = split
                 .partitionCustom(new SingleCast(), value->value.f0 )
                 .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowProcessFunction());
+                .process(new MaxPartialWindowAllProcessFunction());
 
 //        reconciliation.setParallelism(1);
 

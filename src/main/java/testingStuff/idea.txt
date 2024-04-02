@@ -1,0 +1,16 @@
+To use a broadcast function to decide when to change the parallelism for the downstream operator, you can broadcast control signals from a higher-level operator and consume these signals in the downstream operator. Here's how you can modify your code to achieve this:
+
+// Broadcast the control stream
+        BroadcastStream<ControlSignal> broadcastControlStream = controlStream.broadcast(new MapStateDescriptor<>(
+                "ControlSignalState",
+                String.class,
+                ControlSignal.class
+        ));
+
+        // Consume the broadcasted control signals to adjust parallelism
+        DataStream<Tuple2<String, Integer>> aggregate = split
+                .keyBy(value -> value.f0)
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .process(new MaxPartialWindowProcessFunction())
+                .connect(broadcastControlStream)
+                .process(new ParallelismControlFunction());

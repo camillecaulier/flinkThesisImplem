@@ -9,14 +9,9 @@ import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunctio
 import java.util.concurrent.ThreadLocalRandom;
 
 public class RandomStringSource extends RichParallelSourceFunction<Tuple2<String, Integer>>{
-//    private final int keySize;
 
     private volatile boolean running = true;
 
-//    RandomStringSource(ParameterTool pt) {
-//
-//        this.keySize = pt.getInt("keySize", 1);
-//    }
     private volatile int size = 100;
     volatile int count = 0;
 
@@ -32,7 +27,7 @@ public class RandomStringSource extends RichParallelSourceFunction<Tuple2<String
                 count ++;
                 int keySize = 1; // 26^1 26^2 26^3 26^4 26^5
                 sourceContext.collect(Tuple2.of(rng.generate(keySize), count));
-                System.out.println("Generated: "+ rng.generate(keySize)+ "," + count);
+//                System.out.println("Generated: "+ rng.generate(keySize)+ "," + count);
             }
         }
     }

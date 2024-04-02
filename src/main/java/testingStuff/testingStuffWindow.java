@@ -1,20 +1,41 @@
 package testingStuff;
 
+import keygrouping.CustomStreamPartitioner;
 import keygrouping.RoundRobin;
 import keygrouping.SingleCast;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.typeutils.TypeExtractor;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.streaming.api.graph.StreamGraphGenerator;
+import org.apache.flink.streaming.api.transformations.PartitionTransformation;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
+import org.apache.flink.streaming.runtime.partitioner.CustomPartitionerWrapper;
+import org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import popularKeySwitch.splitProcessFunction;
 import processFunctions.MaxPartialWindowAllProcessFunction;
+import processFunctions.MaxWindowProcessFunction;
 import sourceGeneration.RandomStringSource;
+import org.apache.flink.api.common.typeinfo.TypeInformation;
+
+import org.apache.flink.runtime.state.KeyGroupRangeAssignment;
+
+
+import KeySelector.MyKeySelector;
+import java.lang.reflect.Constructor;
+
+import static org.apache.flink.streaming.api.environment.StreamExecutionEnvironment.getExecutionEnvironment;
+
+
+//import static org.apache.flink.api.java.ClosureCleaner.clean;
 
 //import KeyGroupMetricProcessFunction;
 
@@ -22,8 +43,8 @@ public class testingStuffWindow {
 
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
-        final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-//        env.setParallelism(1);
+        final StreamExecutionEnvironment env = getExecutionEnvironment();
+        env.setParallelism(10);
 
 
         WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
@@ -69,32 +90,62 @@ public class testingStuffWindow {
                 .getSideOutput(operatorAggregateTag);
 
 
-        DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
-                .partitionCustom(new RoundRobin(), value->value.f0 )
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowAllProcessFunction());
+        Constructor<KeyedStream> constructor;
+
+        constructor = KeyedStream.class.getDeclaredConstructor(DataStream.class, PartitionTransformation.class, KeySelector.class, TypeInformation.class);
+
+        constructor.setAccessible(true);
+
+        KeySelector<Tuple2<String,Integer>,String> MyKeySelector = new MyKeySelector<Tuple2<String,Integer>,String>();
+
+        PartitionTransformation<Tuple2<String, Integer>> partitionTransformation = new PartitionTransformation<>(
+                operatorAggregateStream.getTransformation(),
+                new CustomStreamPartitioner(new RoundRobin(), operatorAggregateStream.getExecutionEnvironment().clean(MyKeySelector),10));
+
+//        new PartitionTransformation<>(
+//                operatorAggregateStream.getTransformation(),
+//                new KeyGroupStreamPartitioner<>(
+//                        MyKeySelector,
+//                        10)), //also can be
+
+//        KeyGroupRangeAssignment.setDefaultKeyGroupRange(5);
+
+        KeyedStream<Tuple2<String,Integer>,String > keyedStream = constructor.newInstance(operatorAggregateStream,
+                partitionTransformation,
+                operatorAggregateStream.getExecutionEnvironment().clean(MyKeySelector),
+                TypeExtractor.getKeySelectorTypes(MyKeySelector, operatorAggregateStream.getType()));
+
+        keyedStream.print("keyedStream");
+        SingleOutputStreamOperator<Tuple2<String,Integer>> split = keyedStream
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .process(new MaxWindowProcessFunction()).setParallelism(5);
 
 
-        //this is probably not correct as is, since unable to get correct values at the end
-        DataStream<Tuple2<String, Integer>> reconciliation = split
-                .partitionCustom(new SingleCast(), value->value.f0 )
-                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxPartialWindowAllProcessFunction());
+//                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+//                .process(new MaxWindowProcessFunction()).setParallelism(10);
+//                .windowAll(TumblingEventTimeWindows.of(Time.seconds(5)))
+//                .process(new MaxPartialWindowAllProcessFunction());
 
-//        reconciliation.setParallelism(1);
 
-        //this is not correct it's for union two STREAMS
-//        DataStream<Tuple2<String,Integer>> reconciliation = split.union(operatorBasicStream);
-//        reconciliation.print("reconciliation");
+
+
+        DataStream<Tuple2<String, Integer>> aggregate = split
+                .keyBy(value-> value.f0)
+                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+                .process(new MaxWindowProcessFunction()).setParallelism(1);
+
 
 
 
 
 //        operatorAggregateStream.print("operatorAggregateStream");
 //        operatorBasicStream.print("operatorBasicStream");
-        split.print("split");
+//        operatorAggregateStream.print("split");
+//        split.print("split");
+//        aggregate.print("aggregate");
 
-        reconciliation.print("reconciliation");
+
+//        reconciliation.print("reconciliation");
 
         env.execute("Key Group Metric Example");
     }

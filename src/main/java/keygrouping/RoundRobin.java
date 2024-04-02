@@ -13,6 +13,7 @@ public class RoundRobin implements Partitioner<String> {
     @Override
     public int partition(String key, int numPartitions) {
         index++;
+//        System.out.println("index: " + Math.abs(this.index % numPartitions) + " numPartitions: " + numPartitions + " key: " + key);
 
         return  Math.abs(this.index % numPartitions) ;
     }

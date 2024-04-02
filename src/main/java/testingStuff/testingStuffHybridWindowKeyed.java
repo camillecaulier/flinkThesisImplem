@@ -4,6 +4,7 @@ import keygrouping.RoundRobin;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -19,6 +20,7 @@ import sourceGeneration.RandomStringSource;
 public class testingStuffHybridWindowKeyed {
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        env.setParallelism(2);
 
         WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
                 .<Tuple2<String, Integer>>forMonotonousTimestamps()
@@ -59,8 +61,8 @@ public class testingStuffHybridWindowKeyed {
         DataStream<Tuple2<String, Integer>> operatorAggregateStream = popularFilterStream.getSideOutput(operatorAggregateTag);
 
 
-        DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
-                .partitionCustom(new RoundRobin(), value->value.f0 )
+        DataStream<Tuple2<String, Integer>> split = ( operatorAggregateStream
+                .partitionCustom(new RoundRobin(), value->value.f0 ))
                 .process(new MaxPartialFunction());
 
 

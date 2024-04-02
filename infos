@@ -1,3 +1,38 @@
 SplitDAtaProperties -> implementation of partitioner
 
 i send to multiple subtasks, need to check if the data is already partitioned or not.
+
+
+@Override
+    protected DataStream<T> setConnectionType(StreamPartitioner<T> partitioner) {
+        throw new UnsupportedOperationException("Cannot override partitioning for KeyedStream.");
+    }
+
+
+@Internal
+    KeyedStream(
+            DataStream<T> stream,
+            PartitionTransformation<T> partitionTransformation,
+            KeySelector<T, KEY> keySelector,
+            TypeInformation<KEY> keyType) {
+
+        super(stream.getExecutionEnvironment(), partitionTransformation);
+        this.keySelector = clean(keySelector);
+        this.keyType = validateKeyType(keyType);
+    }
+
+
+ public KeyedStream(
+            DataStream<T> dataStream,
+            KeySelector<T, KEY> keySelector,
+            TypeInformation<KEY> keyType) {
+        this(
+                dataStream,
+                new PartitionTransformation<>(
+                        dataStream.getTransformation(),
+                        new KeyGroupStreamPartitioner<>(
+                                keySelector,
+                                StreamGraphGenerator.DEFAULT_LOWER_BOUND_MAX_PARALLELISM)),
+                keySelector,
+                keyType);
+    }

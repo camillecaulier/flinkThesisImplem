@@ -14,11 +14,15 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<Tuple2<String,
 
     volatile long previousWindowTime;
     volatile long nextWindowTime;
-    long windowTime;
+    long windowTime; //in ms
+    long lastWindowTime;
     private volatile HashMap<String, Integer> maxValues;
 
-    public MaxPartialFunctionFakeWindow(long i) {
-        windowTime = i;
+
+    public MaxPartialFunctionFakeWindow(long windowTime) {
+        this.windowTime = windowTime;//in ms
+        this.lastWindowTime = 0;
+        this.nextWindowTime = this.lastWindowTime + windowTime;
     }
 
 
@@ -33,40 +37,40 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<Tuple2<String,
     public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
         String key = value.f0;
 
-        // If no maximum value has been stored yet or the incoming value is greater, update the MapState
-        synchronized (maxValues){
-            if(!maxValues.containsKey(key)){
-                maxValues.put(key, value.f1);
-                out.collect(new Tuple2<>(key, maxValues.get(key)));
+        System.out.println(ctx.timestamp());
+        if(ctx.timestamp() > nextWindowTime){
+            for (String k : maxValues.keySet()) {
+                out.collect(new Tuple2<>(k, maxValues.get(k)));
             }
-            else if(value.f1 > maxValues.get(key)){
-                maxValues.put(key, value.f1);
-                out.collect(new Tuple2<>(key, maxValues.get(key)));
-            }
+            lastWindowTime = nextWindowTime;
+            nextWindowTime = lastWindowTime + windowTime;
         }
+
+        // If no maximum value has been stored yet or the incoming value is greater, update the MapState
+
+        if(!maxValues.containsKey(key)){
+            maxValues.put(key, value.f1);
+        }
+        else if(value.f1 > maxValues.get(key)){
+            maxValues.put(key, value.f1);
+        }
+
         if(nextWindowTime == 0){
             nextWindowTime = ctx.timestamp() + windowTime;
-            ctx.timerService().registerEventTimeTimer(nextWindowTime);
         }
 
 
         // output in ms 60 = 60 000
-//        ctx.timerService().registerEventTimeTimer(ctx.timestamp() + 60000);
 
 //        printMapState();
     }
 
-    @Override
-    public void onTimer(long timestamp, OnTimerContext ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-        synchronized (maxValues){
-            for (String k : maxValues.keySet()) {
-                out.collect(Tuple2.of(k, maxValues.get(k)));
-            }
+
+
+    public void outputMaxValues(Collector<Tuple2<String, Integer>> out) {
+        for (String k : maxValues.keySet()) {
+            out.collect(new Tuple2<>(k, maxValues.get(k)));
         }
-
-        nextWindowTime = nextWindowTime + windowTime;
-        ctx.timerService().registerEventTimeTimer(nextWindowTime);
-
     }
 
     public void printMapState() throws Exception {

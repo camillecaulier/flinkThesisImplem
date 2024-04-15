@@ -19,7 +19,7 @@
               <finalName>flinkImplemProject</finalName>
               <transformers>
                 <transformer>
-                  <mainClass>testingStuff.testingStuffHybridWindowKeyed</mainClass>
+                  <mainClass>testingStuff.testingStuffWindow</mainClass>
                 </transformer>
               </transformers>
             </configuration>

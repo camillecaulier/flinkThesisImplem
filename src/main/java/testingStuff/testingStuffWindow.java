@@ -44,7 +44,7 @@ public class testingStuffWindow {
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
         final StreamExecutionEnvironment env = getExecutionEnvironment();
-        env.setParallelism(10);
+        env.setParallelism(4);
 
 
         WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
@@ -118,8 +118,12 @@ public class testingStuffWindow {
         keyedStream.print("keyedStream");
         SingleOutputStreamOperator<Tuple2<String,Integer>> split = keyedStream
                 .window(TumblingEventTimeWindows.of(Time.seconds(5)))
-                .process(new MaxWindowProcessFunction()).setParallelism(5);
+                .process(new MaxWindowProcessFunction()).setParallelism(4);
 
+//        DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
+//                .partitionCustom( new RoundRobin(), value->value.f0)
+//                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
+//                .process(new MaxWindowProcessFunction());
 
 //                .window(TumblingEventTimeWindows.of(Time.seconds(5)))
 //                .process(new MaxWindowProcessFunction()).setParallelism(10);

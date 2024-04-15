@@ -8,9 +8,9 @@ public class Value {
     public Long timeStamp;
 
 
-    public Value() {
-//        this.valueInt = valueInt;
-//        this.valueTimeStamp = valueTimeStamp;
+    public Value(int valueInt, long valueTimeStamp) {
+        this.valueInt = valueInt;
+        this.timeStamp = valueTimeStamp;
     }
 }
 

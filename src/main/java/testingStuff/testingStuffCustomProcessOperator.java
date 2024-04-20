@@ -18,7 +18,7 @@ import org.apache.flink.util.OutputTag;
 import popularKeySwitch.splitProcessFunction;
 import processFunctions.MaxPartialFunction;
 import processFunctions.MaxWindowProcessFunction;
-import processOperators.CustomProcessOperator;
+//import processOperators.CustomProcessOperator;
 import sourceGeneration.RandomStringSource;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.api.common.typeinfo.Types;

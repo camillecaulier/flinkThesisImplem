@@ -16,7 +16,7 @@ public class MaxProcessOperator<IN extends Comparable<IN>, OUT>
     private IN maxElement;
     private transient TimestampedCollector<OUT> collector;
 
-    private transient ContextImpl context;
+//    private transient ContextImpl context;
 
     public MaxProcessOperator(ProcessFunction<IN, OUT> function) {
         super(function);
@@ -57,5 +57,5 @@ public class MaxProcessOperator<IN extends Comparable<IN>, OUT>
         super.open();
 
     }
-    private class ContextImpl extends ContextImpl
+//    private class ContextImpl extends ContextImpl
 }

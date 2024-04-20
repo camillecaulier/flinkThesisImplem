@@ -12,5 +12,13 @@ public class Value {
         this.valueInt = valueInt;
         this.timeStamp = valueTimeStamp;
     }
+
+    @Override
+    public String toString() {
+        return "Value{" +
+                "valueInt=" + valueInt +
+                ", timeStamp=" + timeStamp +
+                '}';
+    }
 }
 

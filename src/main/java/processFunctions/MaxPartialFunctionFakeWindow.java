@@ -1,28 +1,32 @@
 package processFunctions;
 
+import eventTypes.EventBasic;
+import eventTypes.Value;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
+import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
 import java.util.HashMap;
 
 
-public class MaxPartialFunctionFakeWindow extends ProcessFunction<Tuple2<String, Integer>, Tuple2<String, Integer>> {
+public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, EventBasic> {
 
 
 
-    volatile long previousWindowTime;
-    volatile long nextWindowTime;
+    long currentTime;
+    long endWindowTime;
     long windowTime; //in ms
-    long lastWindowTime;
+    long startWindowTime;
     private volatile HashMap<String, Integer> maxValues;
+
 
 
     public MaxPartialFunctionFakeWindow(long windowTime) {
         this.windowTime = windowTime;//in ms
-        this.lastWindowTime = 0;
-        this.nextWindowTime = this.lastWindowTime + windowTime;
+        this.startWindowTime = - windowTime;
+        this.endWindowTime = this.startWindowTime + windowTime;
     }
 
 
@@ -34,43 +38,34 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<Tuple2<String,
     }
 
     @Override
-    public void processElement(Tuple2<String, Integer> value, Context ctx, Collector<Tuple2<String, Integer>> out) throws Exception {
-        String key = value.f0;
+    public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
+        String key = event.key;
 
-        System.out.println(ctx.timestamp());
-        if(ctx.timestamp() > nextWindowTime){
-            for (String k : maxValues.keySet()) {
-                out.collect(new Tuple2<>(k, maxValues.get(k)));
-            }
-            lastWindowTime = nextWindowTime;
-            nextWindowTime = lastWindowTime + windowTime;
+
+        if(ctx.timestamp() > endWindowTime){
+            outputMaxValues(out);
+            startWindowTime = endWindowTime;
+            endWindowTime += windowTime;
+            currentTime = event.value.timeStamp;
         }
 
         // If no maximum value has been stored yet or the incoming value is greater, update the MapState
 
         if(!maxValues.containsKey(key)){
-            maxValues.put(key, value.f1);
+            maxValues.put(key, event.value.valueInt);
         }
-        else if(value.f1 > maxValues.get(key)){
-            maxValues.put(key, value.f1);
-        }
-
-        if(nextWindowTime == 0){
-            nextWindowTime = ctx.timestamp() + windowTime;
+        else if(event.value.valueInt > maxValues.get(key)){
+            maxValues.put(key, event.value.valueInt);
         }
 
-
-        // output in ms 60 = 60 000
-
-//        printMapState();
     }
 
 
-
-    public void outputMaxValues(Collector<Tuple2<String, Integer>> out) {
+    public void outputMaxValues(Collector<EventBasic> out) {
         for (String k : maxValues.keySet()) {
-            out.collect(new Tuple2<>(k, maxValues.get(k)));
+            out.collect(new EventBasic(k, new Value(maxValues.get(k), currentTime)));
         }
+        maxValues.clear();
     }
 
     public void printMapState() throws Exception {
@@ -79,5 +74,10 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<Tuple2<String,
             System.out.println("Key: " + entry + ", Value: " + maxValues.get(entry));
         }
     }
+//    @Override
+//    public void onTimer(long timestamp, KeyedProcessFunction.OnTimerContext ctx, Collector<EventBasic> out) throws Exception {
+//        // This timer triggers when no new data has arrived by the time the current watermark exceeds the timer's timestamp
+//        outputMaxValues(out);
+//    }
 }
 

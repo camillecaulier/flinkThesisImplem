@@ -28,9 +28,7 @@ public class CreateEventFiles {
 
             for(int t = 0 ; t < time; t++ ){
                 for (int i = 0; i < stampsPerSecond; i++) {
-                    Value value = new Value();
-                    value.valueInt = i;
-                    value.timeStamp = (long) (t * 1000L + 500); // 500 ms offset
+                    Value value = new Value(i,t * 1000L + 500);
                     EventBasic event = new EventBasic(rng.generate(keySize), value);
 
                     // Write event to CSV
@@ -48,7 +46,8 @@ public class CreateEventFiles {
 
     public static void zipfDistribution(int stampsPerSecond, String filename, int keySize, int time, double skew) {
         try (Writer writer = new FileWriter(filename);
-             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Key", "ValueInt", "ValueTimeStamp"))) {
+//             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Key", "ValueInt", "ValueTimeStamp")))
+            CSVPrinter csvPrinter = new CSVPrinter(writer, null)){
 
             ZipfDistribution zipfDistribution = new ZipfDistribution(26, skew); // 26 for the number of characters in the English alphabet
 
@@ -83,6 +82,6 @@ public class CreateEventFiles {
     public static void main(String[] args) {
         // Generate 1000 events with a key size of 1
 //        UniformDistribution(10000, "uniform_distribution.csv", 1, 5);
-        zipfDistribution(10000, "zipf_distribution.csv", 2, 5, 1.5);
+        zipfDistribution(100, "zipf_distribution100_5.csv", 1, 5, 1.5);
     }
 }

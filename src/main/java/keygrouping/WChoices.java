@@ -5,12 +5,13 @@ import org.apache.flink.api.common.functions.Partitioner;
 import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class RoundRobin implements Partitioner<String>, Serializable {
+public class WChoices implements Partitioner<String>, Serializable {
+    //TODO: implement a partitioner that uses the W-Choices algorithm
 
 
     private final AtomicInteger index;
 
-    public RoundRobin() {
+    public WChoices() {
         this.index = new AtomicInteger(0);
     }
 

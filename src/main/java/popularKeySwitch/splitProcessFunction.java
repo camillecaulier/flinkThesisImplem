@@ -30,6 +30,4 @@ public class splitProcessFunction extends ProcessFunction<Tuple2<String, Integer
 
     }
 
-
-
 }

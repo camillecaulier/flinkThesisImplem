@@ -20,7 +20,7 @@ import sourceGeneration.RandomStringSource;
 public class testingStuffHybridWindowKeyed {
     public static void main(String[] args) throws Exception {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(2);
+//        env.setParallelism(2);
 
         WatermarkStrategy<Tuple2<String, Integer>> strategy = WatermarkStrategy
                 .<Tuple2<String, Integer>>forMonotonousTimestamps()
@@ -63,7 +63,7 @@ public class testingStuffHybridWindowKeyed {
 
         DataStream<Tuple2<String, Integer>> split = ( operatorAggregateStream
                 .partitionCustom(new RoundRobin(), value->value.f0 ))
-                .process(new MaxPartialFunction());
+                .process(new MaxPartialFunction()).setParallelism(5);
 
 
 

@@ -34,10 +34,10 @@ public class testingStuffFakeWindow {
     public static void main(String[] args) throws Exception {
         // Set up the execution environment
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setParallelism(2);
+        env.setParallelism(5);
 
         WatermarkStrategy<EventBasic> watermarkStrategy = WatermarkStrategy
-                .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(1000)) // Example delay: 100 ms
+                .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500)) // Example delay: 100 ms
                 .withTimestampAssigner(new SerializableTimestampAssigner<EventBasic>() {
                     @Override
                     public long extractTimestamp(EventBasic element, long recordTimestamp) {
@@ -82,7 +82,8 @@ public class testingStuffFakeWindow {
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorAggregateStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MaxPartialFunctionFakeWindow(1000)).setParallelism(5);
+                .process(new MaxPartialFunctionFakeWindow(1000)).setParallelism(4);
+//                .assignTimestampsAndWatermarks(watermarkStrategy);
 
 
 //        here we can actually use the windows
@@ -99,7 +100,7 @@ public class testingStuffFakeWindow {
 //                .process(new MaxWindowProcessFunctionEvent()).setParallelism(1);
 
 //        mainStream.print("mainStream").setParallelism(1);
-//        operatorAggregateStream.print("operatorAggregateStream");
+//        operatorAggregateStream.print("operatorAggregateStream").setParallelism(1);
 ////        operatorBasicStream.print("operatorBasicStream");
 ////        popularFilterStream.print("popularFilterStream");
 //        split.print("split").setParallelism(1);

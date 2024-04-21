@@ -44,10 +44,10 @@ public class CreateEventFiles {
     }
 
 
-    public static void zipfDistribution(int stampsPerSecond, String filename, int keySize, int time, double skew) {
+    public static void zipfDistribution(int stampsPerSecond, String filename, int keySize, int time, double skew) throws IOException {
         try (Writer writer = new FileWriter(filename);
-//             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT.withHeader("Key", "ValueInt", "ValueTimeStamp")))
-            CSVPrinter csvPrinter = new CSVPrinter(writer, null)){
+             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT)){
+//            CSVPrinter csvPrinter = new CSVPrinter(writer, null)){
 
             ZipfDistribution zipfDistribution = new ZipfDistribution(26, skew); // 26 for the number of characters in the English alphabet
 
@@ -79,9 +79,9 @@ public class CreateEventFiles {
 
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // Generate 1000 events with a key size of 1
 //        UniformDistribution(10000, "uniform_distribution.csv", 1, 5);
-        zipfDistribution(100, "zipf_distribution100_5.csv", 1, 5, 1.5);
+        zipfDistribution(1000000, "zipf_distribution1000000_5.csv", 1, 5, 1.5);
     }
 }

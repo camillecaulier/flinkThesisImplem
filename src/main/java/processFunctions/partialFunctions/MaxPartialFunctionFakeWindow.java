@@ -1,4 +1,4 @@
-package processFunctions;
+package processFunctions.partialFunctions;
 
 import eventTypes.EventBasic;
 import eventTypes.Value;

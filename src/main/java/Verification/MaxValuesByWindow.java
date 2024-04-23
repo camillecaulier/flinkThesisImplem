@@ -55,9 +55,10 @@ public class MaxValuesByWindow {
     private static void printWindowMaxValues(Map<String, Integer> currentValues, long windowStart, long windowEnd) {
         System.out.println("Window from " + windowStart + " to " + windowEnd + ":");
         for (Map.Entry<String, Integer> entry : currentValues.entrySet()) {
-            if (entry.getKey().equals("A") || entry.getKey().equals("B") || entry.getKey().equals("C")){
-                System.out.println("Key: " + entry.getKey() + ", Max Value: " + entry.getValue());
-            }
+//            if (entry.getKey().equals("A") || entry.getKey().equals("B") || entry.getKey().equals("C")){
+//                System.out.println("Key: " + entry.getKey() + ", Max Value: " + entry.getValue());
+//            }
+            System.out.println("Key: " + entry.getKey() + ", Max Value: " + entry.getValue());
 
         }
         System.out.println();

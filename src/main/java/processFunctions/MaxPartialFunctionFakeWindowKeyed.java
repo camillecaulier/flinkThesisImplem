@@ -13,6 +13,9 @@ import java.util.Map;
 
 
 public class MaxPartialFunctionFakeWindowKeyed extends KeyedProcessFunction<String, EventBasic, EventBasic> {
+    /**
+     * this class should not be used for reconciliation since we use windows, the windowedprocessfunction is more appropriate
+     */
 
 //    private MapState<String, Integer> maxValues;
     private HashMap<String, Integer> maxValues;

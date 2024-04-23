@@ -1,7 +1,5 @@
 package testingStuff;
 
-import keygrouping.RoundRobin;
-import keygrouping.SingleCast;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -10,8 +8,6 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.splitProcessFunction;
-import processFunctions.MaxPartialFunction;
-import processFunctions.MaxPartialFunctionFakeWindow;
 import sourceGeneration.RandomStringSource;
 
 public class testingStuffNoWindows {

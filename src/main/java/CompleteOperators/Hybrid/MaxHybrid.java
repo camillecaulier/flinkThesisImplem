@@ -1,4 +1,4 @@
-package CompleteOperators;
+package CompleteOperators.Hybrid;
 
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
@@ -47,7 +47,7 @@ public class MaxHybrid {
         //basic operator
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
-                .window(TumblingEventTimeWindows.of(org.apache.flink.streaming.api.windowing.time.Time.milliseconds(1000)))
+                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
                 .process(new MaxWindowProcessFunctionEvent());
 
         // time to do the thingy

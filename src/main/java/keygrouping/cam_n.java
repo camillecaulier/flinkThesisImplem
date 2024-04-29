@@ -11,12 +11,14 @@ public class cam_n implements Partitioner<String> {
     private ConcurrentHashMap<Integer, HashSet<String>> cardinality;
 
     private ConcurrentHashMap<Integer, AtomicInteger> tupleCount;
+    int parallelism;
 
     public cam_n(int n_choices, int numPartitions) {
-        if(numPartitions == 0){
-            numPartitions = 2;
-        }
+//        if(numPartitions == 0){
+//            numPartitions = 2;
+//        }
         //n being the number of choices eg two choices etc...
+        this.parallelism = numPartitions;
         this.n = n_choices;
         this.cardinality = new ConcurrentHashMap<Integer, HashSet<String>>(numPartitions);
         this.tupleCount = new ConcurrentHashMap<Integer, AtomicInteger>(numPartitions);
@@ -24,7 +26,6 @@ public class cam_n implements Partitioner<String> {
 
     @Override
     public int partition(String key, int numPartitions) {
-
 
         int[] hashes = generateHashes(key);
 
@@ -80,7 +81,7 @@ public class cam_n implements Partitioner<String> {
         int baseHash = input.hashCode();
 
         for (int i = 0; i < n; i++) {
-            hashes[i] = Math.abs((baseHash + i * 31) % this.n); // Using a linear probing approach 31 helps disitribute well
+            hashes[i] = Math.abs((baseHash + i * 31) % this.parallelism); // Using a linear probing approach 31 helps disitribute well
         }
 
         return hashes;

@@ -2,7 +2,6 @@ package testingStuff;
 
 import keygrouping.CustomStreamPartitioner;
 import keygrouping.RoundRobin;
-import keygrouping.SingleCast;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -11,22 +10,16 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.KeyedStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.streaming.api.graph.StreamGraphGenerator;
 import org.apache.flink.streaming.api.transformations.PartitionTransformation;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
-import org.apache.flink.streaming.runtime.partitioner.CustomPartitionerWrapper;
-import org.apache.flink.streaming.runtime.partitioner.KeyGroupStreamPartitioner;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import popularKeySwitch.splitProcessFunction;
-import processFunctions.MaxPartialWindowAllProcessFunction;
-import processFunctions.MaxWindowProcessFunction;
+import processFunctions.Prototypes.MaxWindowProcessFunction;
 import sourceGeneration.RandomStringSource;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
-
-import org.apache.flink.runtime.state.KeyGroupRangeAssignment;
 
 
 import KeySelector.MyKeySelector;

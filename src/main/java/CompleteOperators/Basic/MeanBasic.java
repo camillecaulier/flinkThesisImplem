@@ -7,7 +7,6 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunctionEvent;
 import processFunctions.reconciliationFunctionsComplete.MeanWindowProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 import org.apache.flink.streaming.api.windowing.time.Time;

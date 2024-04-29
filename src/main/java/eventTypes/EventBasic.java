@@ -14,6 +14,11 @@ public class EventBasic {
         this.value = value;
     }
 
+    public EventBasic(String key, int valueInt, long valueTimeStamp){
+        this.key = key;
+        this.value = new Value(valueInt, valueTimeStamp);
+    }
+
     public EventBasic(String key, int valueInt, long valueTimeStamp, int valueTmp){
         this.key = key;
         this.value = new Value(valueInt, valueTimeStamp);

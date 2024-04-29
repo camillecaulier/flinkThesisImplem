@@ -1,4 +1,4 @@
-package processFunctions;
+package processFunctions.Prototypes;
 
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;

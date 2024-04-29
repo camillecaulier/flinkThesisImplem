@@ -7,7 +7,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunctionEvent;
+import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 import org.apache.flink.streaming.api.windowing.time.Time;
 
@@ -32,7 +32,7 @@ public class MaxBasic {
         DataStream<EventBasic> operatorBasicStream = mainStream
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunctionEvent()).setParallelism(parallelism);
+                .process(new MaxWindowProcessFunction()).setParallelism(parallelism);
 
         return operatorBasicStream;
     }

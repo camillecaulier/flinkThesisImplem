@@ -1,4 +1,4 @@
-package processFunctions;
+package processFunctions.Prototypes;
 
 import eventTypes.EventBasic;
 import eventTypes.Value;

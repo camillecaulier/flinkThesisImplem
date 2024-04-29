@@ -13,8 +13,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.Collector;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.splitProcessFunction;
-import processFunctions.MaxPartialFunction;
-import processFunctions.MaxPartialWindowAllProcessFunction;
+import processFunctions.Prototypes.MaxPartialFunction;
+import processFunctions.Prototypes.MaxPartialWindowAllProcessFunction;
 import sourceGeneration.RandomStringSource;
 
 public class testingStuffHybrid {

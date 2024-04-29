@@ -6,7 +6,7 @@ import org.apache.flink.streaming.api.functions.windowing.ProcessWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
 
-public class MaxWindowProcessFunctionEvent extends ProcessWindowFunction<EventBasic, EventBasic, String , TimeWindow> {
+public class MaxWindowProcessFunction extends ProcessWindowFunction<EventBasic, EventBasic, String , TimeWindow> {
     @Override
     public void process(String key, Context context, Iterable<EventBasic> iterable, Collector<EventBasic> collector) throws Exception {
 //        System.out.println( "index subtask" + getRuntimeContext().getIndexOfThisSubtask());
@@ -17,7 +17,6 @@ public class MaxWindowProcessFunctionEvent extends ProcessWindowFunction<EventBa
             time = value.value.timeStamp;
         }
         collector.collect(new EventBasic(key, new Value(max,time)));
-        System.out.println(context.currentWatermark());
     }
 
 }

@@ -2,9 +2,7 @@ package processFunctions.partialFunctions;
 
 import eventTypes.EventBasic;
 import eventTypes.Value;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
-import org.apache.flink.streaming.api.functions.KeyedProcessFunction;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
@@ -12,7 +10,7 @@ import java.util.HashMap;
 import java.util.Objects;
 
 
-public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, EventBasic> {
+public class MaxPartialFunctionFakeWindowEndEvents extends ProcessFunction<EventBasic, EventBasic> {
 
 
 
@@ -24,7 +22,7 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, Ev
 
 
 
-    public MaxPartialFunctionFakeWindow(long windowTime) {
+    public MaxPartialFunctionFakeWindowEndEvents(long windowTime) {
         this.windowTime = windowTime;//in ms
         this.startWindowTime = - windowTime;
         this.endWindowTime = 0;
@@ -45,13 +43,9 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, Ev
 //        int subtaskIndex = getRuntimeContext().getIndexOfThisSubtask();
 //        System.out.println("subtaskIndex = " + subtaskIndex + " key = " + key + " event.value.timeStamp = " + event.value.timeStamp +  " startWindowTime = " + startWindowTime + " endWindowTime = " + endWindowTime + " currentTime = " + currentTime);
 
-        if (Objects.equals(key, "C")){
-//            System.out.println("key = " + key);
-        }
 
 
         if(ctx.timestamp() > endWindowTime){
-//            printMapState();
             outputMaxValues(out);
             startWindowTime = endWindowTime;
             endWindowTime += windowTime;
@@ -71,7 +65,6 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, Ev
             maxValues.put(key, event.value.valueInt);
         }
 
-//        ctx.timerService().registerEventTimeTimer(startWindowTime + windowTime);
 
     }
 
@@ -81,7 +74,7 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, Ev
         for (String k : maxValues.keySet()) {
             out.collect(new EventBasic(k, new Value(maxValues.get(k), currentTime)));
         }
-//        out.collect(new EventBasic("WindowEnd", -1, currentTime));
+        out.collect(new EventBasic("WindowEnd", -1, currentTime));
         maxValues.clear();
     }
 
@@ -92,6 +85,7 @@ public class MaxPartialFunctionFakeWindow extends ProcessFunction<EventBasic, Ev
         }
         System.out.println("current time:" + this.currentTime +   " startWindowTime = " + startWindowTime + " endWindowTime = " + endWindowTime + " currentTime = " + currentTime);
     }
+
 //    @Override
 //    public void onTimer(long timestamp, OnTimerContext ctx, Collector<EventBasic> out) throws Exception {
 //        // This timer triggers when no new data has arrived by the time the current watermark exceeds the timer's timestamp

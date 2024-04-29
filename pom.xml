@@ -58,7 +58,7 @@
                             <finalName>flinkImplemProject</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>testingStuff.testingStuffWindow</mainClass>
+                                    <mainClass>benchmarks.Benchmark</mainClass>
 <!--                                    <mainClass>testingStuff.testingStuffHybridWindowKeyed</mainClass>-->
                                 </transformer>
                             </transformers>

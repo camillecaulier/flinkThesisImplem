@@ -14,7 +14,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.SwitchNodeEventBasic;
 import processFunctions.partialFunctions.MaxPartialFunctionFakeWindow;
-import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunctionEvent;
+import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
@@ -58,7 +58,7 @@ public class testingStuffFakeWindow {
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunctionEvent());
+                .process(new MaxWindowProcessFunction());
 
 
 
@@ -79,7 +79,7 @@ public class testingStuffFakeWindow {
         DataStream<EventBasic> reconciliation = split
                 .keyBy(value-> value.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunctionEvent()).setParallelism(1);
+                .process(new MaxWindowProcessFunction()).setParallelism(1);
 
 
 

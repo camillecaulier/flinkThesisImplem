@@ -13,9 +13,8 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.SwitchNodeEventBasic;
-import processFunctions.partialFunctions.MaxPartialFunctionFakeWindow;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindow;
-import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunctionEvent;
+import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
 import processFunctions.reconciliationFunctionsComplete.MeanWindowReconcileProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 
@@ -51,7 +50,7 @@ public class MeanHybrid {
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunctionEvent());
+                .process(new MaxWindowProcessFunction());
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);

@@ -13,7 +13,10 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.SwitchNodeEventBasic;
 import processFunctions.partialFunctions.MaxPartialFunctionFakeWindow;
-import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunctionEvent;
+import processFunctions.partialFunctions.MaxPartialFunctionFakeWindowEndEvents;
+import processFunctions.reconciliationFunctionsComplete.MaxFunctionReconcileFakeWindow;
+import processFunctions.reconciliationFunctionsComplete.MaxFunctionReconcileFakeWindowEndEvents;
+import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
@@ -48,33 +51,37 @@ public class MaxHybrid {
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunctionEvent());
+                .process(new MaxWindowProcessFunction());
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);
 
         //how to find the number of partitions before
+//        DataStream<EventBasic> split = operatorSplitStream
+//                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+//                .process(new MaxPartialFunctionFakeWindow(1000)).setParallelism(5);
+
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MaxPartialFunctionFakeWindow(1000)).setParallelism(1);
+                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(5);
 
 
-//        here we can actually use the windows
+
+
 //        DataStream<EventBasic> reconciliation = split
-//                .partitionCustom(new SingleCast(), value->value.key )
-//                .process(new MaxPartialFunctionFakeWindow(1000));//.setParallelism(1);
-
-//        DataStream<EventBasic> reconciliation = split.keyBy(value-> value.key)
-//                .process(new MaxPartialFunctionFakeWindowKeyed(1000));//.setParallelism(1);
+//                .keyBy(value-> value.key)
+//                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
+//                .process(new MaxWindowProcessFunctionEvent()).setParallelism(1);
 
         DataStream<EventBasic> reconciliation = split
-                .keyBy(value-> value.key)
-                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunctionEvent()).setParallelism(1);
+                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,5,3)).setParallelism(1);
+
+//        DataStream<EventBasic> reconciliation = split
+//                .process(new MaxFunctionReconcileFakeWindow(1000,5,3)).setParallelism(1);
 
 
-
-//        reconciliation.print("reconciliation").setParallelism(1);
+        split.print("split").setParallelism(1);
+        reconciliation.print("reconciliation").setParallelism(1);
 
 
         return reconciliation.union(operatorBasicStream);

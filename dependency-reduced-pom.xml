@@ -19,7 +19,7 @@
               <finalName>flinkImplemProject</finalName>
               <transformers>
                 <transformer>
-                  <mainClass>testingStuff.testingStuffWindow</mainClass>
+                  <mainClass>benchmarks.Benchmark</mainClass>
                 </transformer>
               </transformers>
             </configuration>

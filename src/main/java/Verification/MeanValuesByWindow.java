@@ -11,9 +11,23 @@ import java.util.Map;
 
 
 public class MeanValuesByWindow {
+    static class ValueStats {
+        int sum = 0;
+        int count = 0;
+
+        void addValue(int value) {
+            sum += value;
+            count++;
+        }
+
+        int getMean() {
+            return count == 0 ? 0 : (int) sum / count;
+        }
+    }
+
     // Assuming window size in milliseconds
     public static void processFile(String filePath, long windowSize) {
-        Map<String, Integer> currentValues = new HashMap<>();
+        Map<String, ValueStats> currentValues = new HashMap<>();
         long windowStart = -1;
 
         try {
@@ -31,17 +45,16 @@ public class MeanValuesByWindow {
 
                 // If current record's timestamp exceeds the current window's end time, print and reset
                 if (timeStamp >= windowStart + windowSize) {
-                    printWindowMaxValues(currentValues, windowStart, windowStart + windowSize);
+                    printWindowMeanValues(currentValues, windowStart, windowStart + windowSize);
                     currentValues.clear();
                     windowStart = timeStamp; // Set new window start to current timestamp
                 }
 
-                currentValues.put(key, Math.max(currentValues.getOrDefault(key, Integer.MIN_VALUE), value));
+                currentValues.computeIfAbsent(key, k -> new ValueStats()).addValue(value);
             }
 
-
             if (!currentValues.isEmpty()) {
-                printWindowMaxValues(currentValues, windowStart, windowStart + windowSize);
+                printWindowMeanValues(currentValues, windowStart, windowStart + windowSize);
             }
 
             parser.close();
@@ -52,14 +65,10 @@ public class MeanValuesByWindow {
         }
     }
 
-    private static void printWindowMaxValues(Map<String, Integer> currentValues, long windowStart, long windowEnd) {
+    private static void printWindowMeanValues(Map<String, ValueStats> currentValues, long windowStart, long windowEnd) {
         System.out.println("Window from " + windowStart + " to " + windowEnd + ":");
-        for (Map.Entry<String, Integer> entry : currentValues.entrySet()) {
-//            if (entry.getKey().equals("A") || entry.getKey().equals("B") || entry.getKey().equals("C")){
-//                System.out.println("Key: " + entry.getKey() + ", Max Value: " + entry.getValue());
-//            }
-            System.out.println("Key: " + entry.getKey() + ", Max Value: " + entry.getValue());
-
+        for (Map.Entry<String, ValueStats> entry : currentValues.entrySet()) {
+            System.out.println("Key: " + entry.getKey() + ", Mean Value: " + entry.getValue().getMean());
         }
         System.out.println();
     }

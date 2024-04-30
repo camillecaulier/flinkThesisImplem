@@ -1,5 +1,6 @@
 package CompleteOperators.Hybrid;
 
+import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
 import org.apache.flink.api.java.io.TextInputFormat;
@@ -12,26 +13,26 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.SwitchNodeEventBasic;
-import processFunctions.partialFunctions.MaxPartialFunctionFakeWindow;
 import processFunctions.partialFunctions.MaxPartialFunctionFakeWindowEndEvents;
-import processFunctions.reconciliationFunctionsComplete.MaxFunctionReconcileFakeWindow;
 import processFunctions.reconciliationFunctionsComplete.MaxFunctionReconcileFakeWindowEndEvents;
 import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MaxHybrid {
+public class MaxHybrid implements CompleteOperator {
     private String csvFilePath;
     private final StreamExecutionEnvironment env;
     private final WatermarkStrategy<EventBasic> watermarkStrategy;
+    int parallelism;
 
-    public MaxHybrid(String csvFilePath, StreamExecutionEnvironment env) {
+    public MaxHybrid(String csvFilePath, StreamExecutionEnvironment env, int parallelism) {
         this.csvFilePath = csvFilePath;
         this.env = env;
         this.watermarkStrategy = WatermarkStrategy
                 .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
                 .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp);
+        this.parallelism = parallelism;
     }
 
     public DataStream<EventBasic> execute(){
@@ -63,21 +64,12 @@ public class MaxHybrid {
 
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(5);
+                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism);
 
-
-
-
-//        DataStream<EventBasic> reconciliation = split
-//                .keyBy(value-> value.key)
-//                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-//                .process(new MaxWindowProcessFunctionEvent()).setParallelism(1);
 
         DataStream<EventBasic> reconciliation = split
-                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,5,3)).setParallelism(1);
+                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1);
 
-//        DataStream<EventBasic> reconciliation = split
-//                .process(new MaxFunctionReconcileFakeWindow(1000,5,3)).setParallelism(1);
 
 
         split.print("split").setParallelism(1);

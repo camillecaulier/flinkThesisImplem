@@ -41,9 +41,11 @@ public class MeanPartialFunctionFakeWindowEndEvents extends ProcessFunction<Even
     public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
         String key = event.key;
 
+//                int subtaskIndex = getRuntimeContext().getIndexOfThisSubtask();
+//        System.out.println("subtaskIndex = " + subtaskIndex + " key = " + key + " event.value.timeStamp = " + event.value.timeStamp +  " startWindowTime = " + startWindowTime + " endWindowTime = " + endWindowTime + " currentTime = " + currentTime);
 
         if(event.value.timeStamp > endWindowTime){
-            printMapState();
+//            printMapState();
             outputMaxValues(out);
             startWindowTime = endWindowTime;
             endWindowTime += windowTime;

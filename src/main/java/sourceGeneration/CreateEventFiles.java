@@ -70,6 +70,16 @@ public class CreateEventFiles {
                 }
             }
 
+            //add end of window
+
+            for (int i = 0; i < 20; i++) {
+                Value value = new Value(i,(time) * 1000L + 500);
+                EventBasic event = new EventBasic(rng.generate(keySize), value);
+
+                // Write event to CSV
+                csvPrinter.printRecord("A", value.valueInt, value.timeStamp);
+            }
+
 
             System.out.println("Events written to file: " + filename);
         } catch (IOException e) {
@@ -82,6 +92,7 @@ public class CreateEventFiles {
     public static void main(String[] args) throws IOException {
         // Generate 1000 events with a key size of 1
 //        UniformDistribution(10000, "uniform_distribution.csv", 1, 5);
-        zipfDistribution(1000000, "zipf_distribution1000000_5.csv", 1, 5, 1.5);
+        zipfDistribution(100000, "zipf_distribution100000_25.csv", 1, 25, 1.5);
+
     }
 }

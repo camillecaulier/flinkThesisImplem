@@ -23,7 +23,7 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
 
 
 
-    public MeanFunctionReconcileFakeWindowEndEvents(long windowTime , int parallelism, int nKeys) {
+    public MeanFunctionReconcileFakeWindowEndEvents(long windowTime , int parallelism) {
         this.parallelism = parallelism ;
         endOfWindowCounter = new HashMap<>();
     }
@@ -72,7 +72,7 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
     public void outputValues(Collector<EventBasic> out, long timeStamp) {
         HashMap<String,Integer> meanMap = getMeanValues(timeStamp);
         for (String key : meanMap.keySet()) {
-            System.out.println("outputvalues");
+//            System.out.println("outputvalues");
             out.collect(new EventBasic(key, meanMap.get(key),timeStamp));
         }
         eventMap.remove(timeStamp);

@@ -1,5 +1,6 @@
 package CompleteOperators.AggregateAware;
 
+import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
 import keygrouping.cam_n;
@@ -11,13 +12,15 @@ import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
 import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import processFunctions.partialFunctions.MaxPartialFunctionFakeWindowEndEvents;
+import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEvents;
 import processFunctions.reconciliationFunctionsComplete.MaxFunctionReconcileFakeWindowEndEvents;
 import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
+import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
 import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MeanAggregateAware {
+public class MeanAggregateAware implements CompleteOperator {
 
     private String csvFilePath;
     private final StreamExecutionEnvironment env;
@@ -34,7 +37,7 @@ public class MeanAggregateAware {
         this.choices = choices;
     }
 
-    public DataStream<EventBasic> execute(int parallelism){
+    public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
                 .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
 
@@ -42,13 +45,14 @@ public class MeanAggregateAware {
 
         DataStream<EventBasic> split = mainStream
                 .partitionCustom(new cam_n(choices ,parallelism), value->value.key ) //any cast
-                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism);
+                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism);
 
 
         DataStream<EventBasic> reconciliation = split
-                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,5,3)).setParallelism(1);
+                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1);
 
-
+//        split.print("split").setParallelism(1);
+//        reconciliation.print("reconciliation").setParallelism(1);
         return reconciliation;
     }
 }

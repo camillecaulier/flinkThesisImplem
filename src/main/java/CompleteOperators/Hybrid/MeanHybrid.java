@@ -1,6 +1,7 @@
 package CompleteOperators.Hybrid;
 
 
+import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
 import org.apache.flink.api.java.io.TextInputFormat;
@@ -14,23 +15,29 @@ import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindo
 import org.apache.flink.util.OutputTag;
 import popularKeySwitch.SwitchNodeEventBasic;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindow;
+import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEvents;
 import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
+import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
+import processFunctions.reconciliationFunctionsComplete.MeanWindowProcessFunction;
 import processFunctions.reconciliationFunctionsComplete.MeanWindowReconcileProcessFunction;
 import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MeanHybrid {
+public class MeanHybrid implements CompleteOperator {
     private String csvFilePath;
     private final StreamExecutionEnvironment env;
     private final WatermarkStrategy<EventBasic> watermarkStrategy;
 
-    public MeanHybrid(String csvFilePath, StreamExecutionEnvironment env) {
+    int splitParallelism;
+
+    public MeanHybrid(String csvFilePath, StreamExecutionEnvironment env, int splitParallelism) {
         this.csvFilePath = csvFilePath;
         this.env = env;
         this.watermarkStrategy = WatermarkStrategy
                 .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
                 .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp);
+        this.splitParallelism = splitParallelism;
     }
 
     public DataStream<EventBasic> execute(){
@@ -50,7 +57,7 @@ public class MeanHybrid {
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunction());
+                .process(new MeanWindowProcessFunction());
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);
@@ -58,21 +65,11 @@ public class MeanHybrid {
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindow(1000)).setParallelism(1);
+                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism);
 
-
-//        here we can actually use the windows
-//        DataStream<EventBasic> reconciliation = split
-//                .partitionCustom(new SingleCast(), value->value.key )
-//                .process(new MaxPartialFunctionFakeWindow(1000));//.setParallelism(1);
-
-//        DataStream<EventBasic> reconciliation = split.keyBy(value-> value.key)
-//                .process(new MaxPartialFunctionFakeWindowKeyed(1000));//.setParallelism(1);
 
         DataStream<EventBasic> reconciliation = split
-                .keyBy(value-> value.key)
-                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MeanWindowReconcileProcessFunction()).setParallelism(1);
+                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1);
 
 
 

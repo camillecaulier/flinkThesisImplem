@@ -23,7 +23,7 @@ public class MaxFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Eve
 
 
 
-    public MaxFunctionReconcileFakeWindowEndEvents(long windowTime , int parallelism, int nKeys) {
+    public MaxFunctionReconcileFakeWindowEndEvents(long windowTime , int parallelism) {
         this.parallelism = parallelism ;
         endOfWindowCounter = new HashMap<>();
     }
@@ -73,7 +73,6 @@ public class MaxFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Eve
     public void outputValues(Collector<EventBasic> out, long timeStamp) {
         HashMap<String,Integer> sumCountMap = getMaxValues(timeStamp);
         for (String key : sumCountMap.keySet()) {
-            System.out.println("outputvalues");
             out.collect(new EventBasic(key, sumCountMap.get(key),timeStamp));
         }
         eventMap.remove(timeStamp);

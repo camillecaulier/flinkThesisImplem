@@ -2,6 +2,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+**flink-1.18.1-bin-scala_2.12.tgz
+**/flink-1.18.1
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-def configure_flink(flink_dir, task_slots=4 , workers_n = 2):
+def configure_flink(flink_dir, task_slots=5 , workers_n = 3):
     # Path to the Flink configuration file
     conf_path = os.path.join(flink_dir, 'conf', 'flink-conf.yaml')
     workers_path = os.path.join(flink_dir, 'conf', 'workers')

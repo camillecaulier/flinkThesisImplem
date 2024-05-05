@@ -8,6 +8,7 @@ target/
 **/data50
 **/dataSmall
 **/data250
+**/data150
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

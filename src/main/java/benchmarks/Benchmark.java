@@ -21,9 +21,12 @@ import java.util.List;
 public class Benchmark {
 
     public static void main(String[] args) throws Exception {
+        System.out.println("Current working directory: " + System.getProperty("user.dir"));
+
         printClassLocation(Benchmark.class);
 
-        int mainParallelism = 2;
+        int mainParallelism = args[0].isEmpty() ? 10 : Integer.parseInt(args[0]);
+        System.out.println("Main parallelism: " + mainParallelism);
 
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
@@ -40,7 +43,7 @@ public class Benchmark {
                 )
         );
 
-        String directory = "data50/";
+        String directory = System.getProperty("user.dir")+"/data50/";
         List<String> csvSources = listFilenamesInDirectory(directory);
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
@@ -56,7 +59,7 @@ public class Benchmark {
                 operator.execute();
                 long startTime = System.nanoTime();
 
-                env.execute("\"Benchmarking operator: \" + benchmarkParameter.operator + \" with file: \" + csvSource");
+                env.execute("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + csvSource);
                 long endTime = System.nanoTime();
                 long duration = (endTime - startTime);
                 printMetrics(benchmarkParameter, csvSource, duration);
@@ -128,7 +131,7 @@ public class Benchmark {
     }
 
     public static void printMetrics(BenchmarkParameters benchmarkParameter, String csvSource, long duration) {
-        System.out.println(benchmarkParameter.operator+ "," + duration/1000000+","+benchmarkParameter.MainParallelism+","+benchmarkParameter.HybridParallelism+","+benchmarkParameter.Choices+","+csvSource);
+        System.out.println("metric:"+benchmarkParameter.operator+ "," + duration/1000000+","+benchmarkParameter.MainParallelism+","+benchmarkParameter.HybridParallelism+","+benchmarkParameter.Choices+","+csvSource);
     }
 
     public static void printClassLocation(Class<?> clazz) {

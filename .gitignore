@@ -5,6 +5,8 @@ target/
 **flink-1.18.1-bin-scala_2.12.tgz
 **/flink-1.18.1
 **/dataBig
+**/data
+**/dataSmall
 
 ### IntelliJ IDEA ###
 .idea/modules.xml

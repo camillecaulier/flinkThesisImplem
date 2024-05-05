@@ -14,7 +14,7 @@ import org.apache.flink.streaming.api.windowing.time.Time;
 
 import java.time.Duration;
 
-public class MeanBasic implements CompleteOperator {
+public class MeanBasic implements CompleteOperator<EventBasic> {
     private String csvFilePath;
     private final StreamExecutionEnvironment env;
     private final WatermarkStrategy<EventBasic> watermarkStrategy;

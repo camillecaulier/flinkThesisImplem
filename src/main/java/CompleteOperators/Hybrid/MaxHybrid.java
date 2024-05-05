@@ -20,19 +20,22 @@ import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MaxHybrid implements CompleteOperator {
+public class MaxHybrid implements CompleteOperator<EventBasic> {
     private String csvFilePath;
     private final StreamExecutionEnvironment env;
     private final WatermarkStrategy<EventBasic> watermarkStrategy;
     int parallelism;
 
-    public MaxHybrid(String csvFilePath, StreamExecutionEnvironment env, int parallelism) {
+    int splitParallelism;
+
+    public MaxHybrid(String csvFilePath, StreamExecutionEnvironment env, int parallelism, int splitParallelism) {
         this.csvFilePath = csvFilePath;
         this.env = env;
         this.watermarkStrategy = WatermarkStrategy
                 .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
                 .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp);
         this.parallelism = parallelism;
+        this.splitParallelism = splitParallelism;
     }
 
     public DataStream<EventBasic> execute(){
@@ -52,23 +55,21 @@ public class MaxHybrid implements CompleteOperator {
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunction());
+                .process(new MaxWindowProcessFunction()).setParallelism(parallelism);
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);
 
         //how to find the number of partitions before
-//        DataStream<EventBasic> split = operatorSplitStream
-//                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-//                .process(new MaxPartialFunctionFakeWindow(1000)).setParallelism(5);
+
 
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism);
+                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism);
 
 
         DataStream<EventBasic> reconciliation = split
-                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1);
+                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1);
 
 
 

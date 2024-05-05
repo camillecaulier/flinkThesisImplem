@@ -9,7 +9,7 @@ def custom_zipf(n, a, size=1000):
     return np.random.choice(ranks, size=size, p=weights)
 
 # Parameters
-a = 0 # Zipf distribution parameter (exponent)
+a = 0.001 # Zipf distribution parameter (exponent)
 sample_size = 1000  # Number of samples
 max_rank = 27  # Maximum rank
 

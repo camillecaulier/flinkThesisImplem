@@ -16,7 +16,7 @@ import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MaxAggregateAware implements CompleteOperator {
+public class MaxAggregateAware implements CompleteOperator<EventBasic> {
 
     private String csvFilePath;
     private final StreamExecutionEnvironment env;

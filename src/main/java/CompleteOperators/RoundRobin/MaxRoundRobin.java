@@ -1,4 +1,4 @@
-package CompleteOperators.AggregateAware;
+package CompleteOperators.RoundRobin;
 
 import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
@@ -17,7 +17,7 @@ import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MaxRoundRobin implements CompleteOperator {
+public class MaxRoundRobin implements CompleteOperator<EventBasic> {
 
     private String csvFilePath;
     private final StreamExecutionEnvironment env;

@@ -20,7 +20,7 @@ import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MeanAggregateAware implements CompleteOperator {
+public class MeanAggregateAware implements CompleteOperator<EventBasic> {
 
     private String csvFilePath;
     private final StreamExecutionEnvironment env;

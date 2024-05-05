@@ -24,19 +24,22 @@ import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MeanHybrid implements CompleteOperator {
+public class MeanHybrid implements CompleteOperator<EventBasic> {
     private String csvFilePath;
     private final StreamExecutionEnvironment env;
     private final WatermarkStrategy<EventBasic> watermarkStrategy;
 
+    int parallelism;
+
     int splitParallelism;
 
-    public MeanHybrid(String csvFilePath, StreamExecutionEnvironment env, int splitParallelism) {
+    public MeanHybrid(String csvFilePath, StreamExecutionEnvironment env,int parallelism, int splitParallelism) {
         this.csvFilePath = csvFilePath;
         this.env = env;
         this.watermarkStrategy = WatermarkStrategy
                 .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
                 .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp);
+        this.parallelism = parallelism;
         this.splitParallelism = splitParallelism;
     }
 
@@ -57,7 +60,7 @@ public class MeanHybrid implements CompleteOperator {
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MeanWindowProcessFunction());
+                .process(new MeanWindowProcessFunction()).setParallelism(parallelism);
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);

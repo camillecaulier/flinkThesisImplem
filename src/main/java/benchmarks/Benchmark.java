@@ -21,36 +21,36 @@ import java.util.List;
 public class Benchmark {
 
     public static void main(String[] args) throws Exception {
+        printClassLocation(Benchmark.class);
 
         int mainParallelism = 2;
 
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
                         new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0),
-                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3)
-//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0),
-//                        new BenchmarkParameters("MeanHybrid", mainParallelism/2, mainParallelism/2, 0),
-//
-//
-//                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
-//                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
-//                        new BenchmarkParameters("MaxAggregateAware", mainParallelism, 0, 3),
-//                        new BenchmarkParameters("MaxRoundRobin", mainParallelism, 0, 0)
+                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3),
+                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0),
+                        new BenchmarkParameters("MeanHybrid", mainParallelism/2, mainParallelism/2, 0),
+
+
+                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
+                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
+                        new BenchmarkParameters("MaxAggregateAware", mainParallelism, 0, 3),
+                        new BenchmarkParameters("MaxRoundRobin", mainParallelism, 0, 0)
                 )
         );
 
-        String directory = "data/";
+        String directory = "data50/";
         List<String> csvSources = listFilenamesInDirectory(directory);
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setRuntimeMode(RuntimeExecutionMode.BATCH);
 
+        long totalStart = System.currentTimeMillis();
         //executeOrder66
         for (BenchmarkParameters benchmarkParameter : benchmarkParameters) {
-//            String csvSource = "zipf_distribution100000_1_50_0.35.csv";
 
             for (String csvSource : csvSources) {
-//            for(int i = 0 ; i < 2; i++){
                 System.out.println("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + csvSource);
                 CompleteOperator<EventBasic> operator = createOperatorFromParameters(benchmarkParameter, directory + csvSource,env);
                 operator.execute();
@@ -59,11 +59,15 @@ public class Benchmark {
                 env.execute("\"Benchmarking operator: \" + benchmarkParameter.operator + \" with file: \" + csvSource");
                 long endTime = System.nanoTime();
                 long duration = (endTime - startTime);
-                System.out.println("Execution time: " + duration + " nanoseconds");
+                printMetrics(benchmarkParameter, csvSource, duration);
 
 
             }
         }
+        long totalEnd = System.currentTimeMillis();
+        long totalDuration = ((totalEnd - totalStart)/1000)/60;
+
+        System.out.println("Total execution time: " + totalDuration + " minutes");
 
     }
 
@@ -102,6 +106,8 @@ public class Benchmark {
 
     }
 
+
+
     public static List<String> listFilenamesInDirectory(String directoryPath) {
         File directory = new File(directoryPath);
         File[] filesList = directory.listFiles();
@@ -121,8 +127,23 @@ public class Benchmark {
         return filenames;
     }
 
-    public void printMetrics(BenchmarkParameters benchmarkParameter, String csvSource, long duration) {
+    public static void printMetrics(BenchmarkParameters benchmarkParameter, String csvSource, long duration) {
         System.out.println(benchmarkParameter.operator+ "," + duration/1000000+","+benchmarkParameter.MainParallelism+","+benchmarkParameter.HybridParallelism+","+benchmarkParameter.Choices+","+csvSource);
+    }
+
+    public static void printClassLocation(Class<?> clazz) {
+        java.security.ProtectionDomain pd = clazz.getProtectionDomain();
+        java.security.CodeSource cs = pd.getCodeSource();
+        if (cs != null) {
+            java.net.URL url = cs.getLocation();
+            if (url != null) {
+                System.out.println(clazz.getSimpleName() + " is loaded from " + url.getPath());
+            } else {
+                System.out.println("The location of " + clazz.getSimpleName() + " could not be determined.");
+            }
+        } else {
+            System.out.println("No CodeSource available for " + clazz.getSimpleName());
+        }
     }
 
 }

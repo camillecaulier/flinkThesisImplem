@@ -37,17 +37,17 @@ public class MeanRoundRobin implements CompleteOperator<EventBasic> {
 
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
+                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy).name("source");
 
 
 
         DataStream<EventBasic> split = mainStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism);
+                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism).name("roundRobinOperator");
 
 
         DataStream<EventBasic> reconciliation = split
-                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1);
+                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1).name("reconciliation");
 
 //        reconciliation.print("reconciliation");
         return reconciliation;

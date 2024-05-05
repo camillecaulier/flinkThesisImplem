@@ -45,7 +45,7 @@ public class MeanHybrid implements CompleteOperator<EventBasic> {
 
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
+                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy).name("source");
 
 
         // Create OutputTags for different operators
@@ -54,7 +54,7 @@ public class MeanHybrid implements CompleteOperator<EventBasic> {
 
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
         SingleOutputStreamOperator<EventBasic> popularFilterStream = mainStream
-                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1);
+                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1).name("SwitchNodeEventBasic");
 
         //basic operator
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
@@ -68,11 +68,11 @@ public class MeanHybrid implements CompleteOperator<EventBasic> {
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism);
+                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism).name("splitOperator");
 
 
         DataStream<EventBasic> reconciliation = split
-                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1);
+                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1).name("reconciliationOperator");
 
 
 

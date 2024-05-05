@@ -36,14 +36,14 @@ public class MaxAggregateAware implements CompleteOperator<EventBasic> {
 
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
+                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy).name("source");
 
         DataStream<EventBasic> operatorBasicStream = mainStream
                 .partitionCustom(new keygrouping.cam_n(choices ,parallelism), value->value.key )
-                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(this.parallelism);
+                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(this.parallelism).name("aggregateAwareOperator");
 
         DataStream<EventBasic> reconciliation = operatorBasicStream
-                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000, this.parallelism)).setParallelism(1);
+                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000, this.parallelism)).setParallelism(1).name("reconciliation");
 
         return reconciliation;
     }

@@ -30,12 +30,12 @@ public class MaxBasic implements CompleteOperator<EventBasic> {
 
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
+                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy).name("source");
 
         DataStream<EventBasic> operatorBasicStream = mainStream
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunction()).setParallelism(parallelism);
+                .process(new MaxWindowProcessFunction()).setParallelism(parallelism).name("basicOperator");
 
         return operatorBasicStream;
     }

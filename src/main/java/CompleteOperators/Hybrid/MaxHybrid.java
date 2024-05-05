@@ -40,7 +40,7 @@ public class MaxHybrid implements CompleteOperator<EventBasic> {
 
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
+                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy).name("source");
 
 
         // Create OutputTags for different operators
@@ -49,13 +49,13 @@ public class MaxHybrid implements CompleteOperator<EventBasic> {
 
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
         SingleOutputStreamOperator<EventBasic> popularFilterStream = mainStream
-                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1);
+                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1).name("SwitchNodeEventBasic");
 
         //basic operator
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .keyBy(event -> event.key)
                 .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MaxWindowProcessFunction()).setParallelism(parallelism);
+                .process(new MaxWindowProcessFunction()).setParallelism(parallelism).name("basicOperator");
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);
@@ -65,16 +65,16 @@ public class MaxHybrid implements CompleteOperator<EventBasic> {
 
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism);
+                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism).name("splitOperator");
 
 
         DataStream<EventBasic> reconciliation = split
-                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1);
+                .process(new MaxFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1).name("reconciliationOperator");
 
 
 
-        split.print("split").setParallelism(1);
-        reconciliation.print("reconciliation").setParallelism(1);
+//        split.print("split").setParallelism(1);
+//        reconciliation.print("reconciliation").setParallelism(1);
 
 
         return reconciliation.union(operatorBasicStream);

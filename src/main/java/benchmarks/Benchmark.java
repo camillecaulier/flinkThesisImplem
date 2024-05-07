@@ -28,22 +28,25 @@ public class Benchmark {
         int mainParallelism = args[0].isEmpty() ? 10 : Integer.parseInt(args[0]);
         System.out.println("Main parallelism: " + mainParallelism);
 
+        String fileName  = args[1];
+        System.out.println("File name: " + fileName);
+
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
                         new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0),
                         new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3),
                         new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0),
-                        new BenchmarkParameters("MeanHybrid", mainParallelism/2, mainParallelism/2, 0),
+                        new BenchmarkParameters("MeanHybrid", mainParallelism/2, mainParallelism/2, 0)
 
 
-                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
-                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
-                        new BenchmarkParameters("MaxAggregateAware", mainParallelism, 0, 3),
-                        new BenchmarkParameters("MaxRoundRobin", mainParallelism, 0, 0)
+//                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
+//                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
+//                        new BenchmarkParameters("MaxAggregateAware", mainParallelism, 0, 3),
+//                        new BenchmarkParameters("MaxRoundRobin", mainParallelism, 0, 0)
                 )
         );
 
-        String directory = System.getProperty("user.dir")+"/data50/";
+        String directory = System.getProperty("user.dir")+"/"+fileName+"/";
         List<String> csvSources = listFilenamesInDirectory(directory);
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();

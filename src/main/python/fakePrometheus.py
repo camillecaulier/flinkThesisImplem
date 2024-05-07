@@ -6,7 +6,7 @@ import time
 # URL for Flink REST API
 # flink_url = 'http://localhost:8081'
 flink_url = "http://127.0.0.1:8081"
-
+print("starting fake prometheus")
 def get_running_job():
     response = requests.get(f"{flink_url}/jobs/")
 
@@ -29,16 +29,14 @@ def get_job_metrics(job_id):
 while True:
     none_count = 0
     job_running = get_running_job()
-    try:
 
-        if get_job_metrics(job_running) == "None":
-            none_count += 1
-            if none_count == 200:
-                print("No running job found")
-                break
-        else:
-            none_count = 0
+    if get_job_metrics(job_running) == "None":
+        none_count += 1
+        if none_count == 300:
+            print("No running job found")
+            break
+    else:
+        none_count = 0
 
-    except Exception as e:
-        print(f"Failed to fetch metrics: {e}")
+
     time.sleep(0.25)

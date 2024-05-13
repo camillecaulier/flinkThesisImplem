@@ -12,7 +12,6 @@ import java.util.HashMap;
 
 public class MeanWindowProcessFunction  extends ProcessWindowFunction<EventBasic, EventBasic, String , TimeWindow> {
 
-    private  HashMap<String, Tuple2<Integer, Integer>> SumCountMap;
 
     private int count;
 
@@ -30,9 +29,12 @@ public class MeanWindowProcessFunction  extends ProcessWindowFunction<EventBasic
 
             sum += value;
             count++;
+//            System.out.println("key: "+s+" sum: " + sum + " count: " + count + " mean: " + sum/count);
 
 
         }
         out.collect(new EventBasic(s, new Value(sum/count, timeStamp)));
+        sum = 0;
+        count = 0;
     }
 }

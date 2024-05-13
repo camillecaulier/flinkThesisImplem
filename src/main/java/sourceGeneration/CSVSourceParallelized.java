@@ -8,7 +8,7 @@ import org.apache.flink.util.Collector;
 public class CSVSourceParallelized implements FlatMapFunction<String, EventBasic> {
     @Override
     public void flatMap(String value, Collector<EventBasic> out) throws Exception {
-        // Assuming CSV format is Key,ValueInt,ValueTimeStamp
+        //Assuming CSV format is Key,ValueInt,ValueTimeStamp
         String[] parts = value.split(",");
         if (parts.length == 3) {
             String key = parts[0].trim();

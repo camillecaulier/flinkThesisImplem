@@ -94,14 +94,28 @@ public class CreateEventFiles {
 
 
     public static void main(String[] args) throws IOException {
-        double[] skewValues = {0.000000000000001,0.35, 0.7, 1.4, 2.1};
-        int[] keySizes = {1,2,3};
-        int[] timeValues = {10};
-        int stampsPerSecond = 500000;
+//        double[] skewValues = {0.000000000000001,0.35, 0.7, 1.4, 2.1};
+//        int[] keySizes = {1,2,3};
+//        int[] timeValues = {2};
+//        int stampsPerSecond = 2500000;
+//        for (int keySize : keySizes) {
+//            for (int time : timeValues) {
+//                for (double skew : skewValues) {
+//                    String filename = "data_2_2500000/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+//                    zipfDistribution(stampsPerSecond, filename, keySize, time, skew);
+//                }
+//            }
+//        }
+
+
+        double[] skewValues = {0.000000000000001, 1.4};
+        int[] keySizes = {1};
+        int[] timeValues = {5};
+        int stampsPerSecond = 100;
         for (int keySize : keySizes) {
             for (int time : timeValues) {
                 for (double skew : skewValues) {
-                    String filename = "data10LongWindow/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+                    String filename = "data_10_100000/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
                     zipfDistribution(stampsPerSecond, filename, keySize, time, skew);
                 }
             }

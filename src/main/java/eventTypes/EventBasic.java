@@ -1,6 +1,8 @@
 package eventTypes;
 
 
+import java.util.Objects;
+
 public class EventBasic {
     /**
      * This class is the basic class for all the events that will be used in the project. key string and value
@@ -29,6 +31,22 @@ public class EventBasic {
                 "key='" + key + '\'' +
                 ", value=" + value +
                 '}';
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+        if (obj == null || obj.getClass() != this.getClass()) {
+            return false;
+        }
+        EventBasic eventBasic = (EventBasic) obj;
+        return key.equals(eventBasic.key) && value.valueInt.equals(eventBasic.value.valueInt) && value.timeStamp.equals(eventBasic.value.timeStamp) ;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(key, value.timeStamp, value.valueInt, value.valueTmp );
     }
 
 }

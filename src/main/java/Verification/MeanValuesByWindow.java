@@ -33,6 +33,7 @@ public class MeanValuesByWindow {
         try {
             FileReader fileReader = new FileReader(filePath);
             CSVParser parser = new CSVParser(fileReader, CSVFormat.DEFAULT);
+            System.out.println("window,key,mean");
             for (CSVRecord record : parser) {
                 String key = record.get(0);
                 int value = Integer.parseInt(record.get(1));
@@ -43,9 +44,9 @@ public class MeanValuesByWindow {
                     windowStart = timeStamp;
                 }
 
-                // If current record's timestamp exceeds the current window's end time, print and reset
                 if (timeStamp >= windowStart + windowSize) {
-                    printWindowMeanValues(currentValues, windowStart, windowStart + windowSize);
+//                    printWindowMeanValues(currentValues, windowStart, windowStart + windowSize);
+                    printWindowMeanValuesCSV(currentValues, windowStart, windowStart + windowSize);
                     currentValues.clear();
                     windowStart = timeStamp; // Set new window start to current timestamp
                 }
@@ -54,7 +55,8 @@ public class MeanValuesByWindow {
             }
 
             if (!currentValues.isEmpty()) {
-                printWindowMeanValues(currentValues, windowStart, windowStart + windowSize);
+//                printWindowMeanValues(currentValues, windowStart, windowStart + windowSize);
+                printWindowMeanValuesCSV(currentValues, windowStart, windowStart + windowSize);
             }
 
             parser.close();
@@ -73,9 +75,16 @@ public class MeanValuesByWindow {
         System.out.println();
     }
 
+    private static void printWindowMeanValuesCSV(Map<String, ValueStats> currentValues, long windowStart, long windowEnd) {
+        for (Map.Entry<String, ValueStats> entry : currentValues.entrySet()) {
+            System.out.println(windowStart+ ","  + entry.getKey() + "," + entry.getValue().getMean());
+        }
+    }
+
     public static void main(String[] args) {
-        String filePath = "zipf_distribution100_5.csv"; // Update this path
-        long windowSize = 1000; // Window size in milliseconds
+        String filePath = "data_10_100000/zipf_distribution_100_1_5_1.0E-15.csv";
+//        String filePath = "data_10_100000/zipf_distribution_100000_5.csv";
+        long windowSize = 1000;
         processFile(filePath, windowSize);
     }
 }

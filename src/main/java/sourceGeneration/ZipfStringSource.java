@@ -21,20 +21,19 @@ public class ZipfStringSource extends RichParallelSourceFunction<Tuple2<String, 
 
     @Override
     public void run(SourceFunction.SourceContext<Tuple2<String, Integer>> sourceContext) throws Exception {
-        // Define parameters for the Zipf distribution
-        int populationSize = 26; // Assuming you want letters from A to Z
-        double exponent = 2.0; // You can adjust this value to control skewness
 
-        // Create Zipf distribution
+        int populationSize = 26;
+        double exponent = 2.0; // skeness
+
+
         ZipfDistribution zipfDistribution = new ZipfDistribution(populationSize, exponent);
 
-        // Loop to generate data
         while (count < size) {
             synchronized (sourceContext.getCheckpointLock()) {
                 count++;
 
-                // Generate a random key based on the Zipf distribution
-                int rank = zipfDistribution.sample() - 1; // ZipfDistribution is 1-indexed
+
+                int rank = zipfDistribution.sample() - 1;
                 char key = (char) ('A' + rank);
 
                 sourceContext.collect(Tuple2.of(String.valueOf(key), count));

@@ -3,6 +3,7 @@ package keygrouping;
 import org.apache.flink.api.common.functions.Partitioner;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -12,6 +13,8 @@ public class cam_n implements Partitioner<String> {
 
     private ConcurrentHashMap<Integer, AtomicInteger> tupleCount;
     int parallelism;
+
+    int index = 0;
 
     public cam_n(int n_choices, int numPartitions) {
 //        if(numPartitions == 0){
@@ -26,6 +29,9 @@ public class cam_n implements Partitioner<String> {
 
     @Override
     public int partition(String key, int numPartitions) {
+        if(Objects.equals(key, "ENDD")){
+            return roundRobin(numPartitions);
+        }
 
         int[] hashes = generateHashes(key);
 
@@ -85,5 +91,10 @@ public class cam_n implements Partitioner<String> {
         }
 
         return hashes;
+    }
+
+    public int roundRobin(int numPartitions){
+        index++;
+        return Math.abs(index % numPartitions);
     }
 }

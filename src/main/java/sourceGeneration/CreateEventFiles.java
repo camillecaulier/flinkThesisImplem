@@ -81,7 +81,7 @@ public class CreateEventFiles {
 
             for (int i = 0; i < 20; i++) {
                 Value value = new Value(i,(time) * 1000L + 500);
-                csvPrinter.printRecord("A", value.valueInt, value.timeStamp);
+                csvPrinter.printRecord("ENDD", value.valueInt, value.timeStamp);
             }
 
 
@@ -109,9 +109,9 @@ public class CreateEventFiles {
 
 
         double[] skewValues = {0.000000000000001, 1.4};
-        int[] keySizes = {1};
-        int[] timeValues = {5};
-        int stampsPerSecond = 100;
+        int[] keySizes = {2};
+        int[] timeValues = {10};
+        int stampsPerSecond = 100000;
         for (int keySize : keySizes) {
             for (int time : timeValues) {
                 for (double skew : skewValues) {

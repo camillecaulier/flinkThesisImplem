@@ -19,7 +19,7 @@ public class SwitchNodeEventBasic extends ProcessFunction<EventBasic, EventBasic
     @Override
     public void processElement(EventBasic value, Context ctx, Collector<EventBasic> out) throws Exception {
 //        is popular()
-        if (value.key.equals("A") || value.key.equals("B") || value.key.equals("C")){
+        if (value.key.equals("A") || value.key.equals("B") || value.key.equals("C") || value.key.equals("ENDD")){
             ctx.output(hotKeyOperatorTag, value); //send to operator 1
 
         } else {

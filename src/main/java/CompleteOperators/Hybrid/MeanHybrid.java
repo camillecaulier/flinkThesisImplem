@@ -76,7 +76,7 @@ public class MeanHybrid implements CompleteOperator<EventBasic> {
 
 
 
-        reconciliation.print("reconciliation").setParallelism(1);
+//        reconciliation.print("reconciliation").setParallelism(1);
 
 
         return reconciliation.union(operatorBasicStream);

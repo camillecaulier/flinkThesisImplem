@@ -102,14 +102,12 @@ public class TestMeanOperator  {
 
             Set<EventBasic> expectedEvents = readCSV(csvFilePathCorrect);
             for(EventBasic event : collectedEvents){
-                System.out.println(event);
+//                System.out.println(event);
                 assert(expectedEvents.contains(event));
                 expectedEvents.remove(event);
             }
+            assert(expectedEvents.isEmpty() || expectedEvents.size() == 1);
         }
-
-
-
     }
 
     @Test
@@ -133,16 +131,19 @@ public class TestMeanOperator  {
             sinkCollect.values.clear();
 
             Set<EventBasic> expectedEvents = readCSV(csvFilePathCorrect);
-            System.out.println(expectedEvents);
+//            System.out.println(expectedEvents);
             for(EventBasic event : collectedEvents){
-                System.out.println(event);
-                System.out.println(expectedEvents.contains(event));
                 assert(expectedEvents.contains(event));
                 expectedEvents.remove(event);
             }
+            System.out.println("Expected events: " + expectedEvents); // the only thing left should be the end of windows which is
+
+            assert(expectedEvents.isEmpty() || expectedEvents.size() == 1);
+            // [EventBasic{key='oA', value=Value{valueInt=9, timeStamp=5500}}]
+//            EventBasic endEvent = new EventBasic("A", 9, 5500);
+//            assert(expectedEvents.contains(endEvent));
+//            expectedEvents.remove(endEvent);
         }
-
-
 
     }
 
@@ -152,7 +153,7 @@ public class TestMeanOperator  {
         env.setRuntimeMode(RuntimeExecutionMode.BATCH);
 
         String csvFilePath = "data_10_100000/zipf_distribution_100000_2_10_1.4.csv";
-        String csvFilePathCorrect = "src/test/java/zipf_distribution_100000_2_10_1.4o_correct.csv";
+        String csvFilePathCorrect = "src/test/java/zipf_distribution_100000_2_10_1.4_correct.csv";
         for(Class operatorClass : operators){
             System.out.println(operatorClass);
             CompleteOperator<EventBasic> operator = giveOperator(operatorClass,env, csvFilePath);
@@ -172,6 +173,8 @@ public class TestMeanOperator  {
                 assert(expectedEvents.contains(event));
                 expectedEvents.remove(event);
             }
+            System.out.println(expectedEvents);
+            assert(expectedEvents.isEmpty() || expectedEvents.size() == 1);
         }
     }
 }

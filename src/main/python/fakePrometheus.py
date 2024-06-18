@@ -18,7 +18,7 @@ def get_running_job():
 def get_job_metrics(job_id):
 
     if job_id is None:
-        return "None"
+        return None
     metrics_url = f"{flink_url}/jobs/{job_id}"
     response = requests.get(metrics_url)
     metrics_data = response.json()
@@ -30,7 +30,7 @@ while True:
     none_count = 0
     job_running = get_running_job()
 
-    if get_job_metrics(job_running) == "None":
+    if get_job_metrics(job_running) == None:
         none_count += 1
         if none_count == 300:
             print("No running job found")

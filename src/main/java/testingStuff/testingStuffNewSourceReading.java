@@ -6,7 +6,7 @@ import org.apache.flink.api.java.io.TextInputFormat;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
-import sourceGeneration.CSVSourceParallelized;
+import sourceGeneration.CSVSourceFlatMap;
 
 
 
@@ -28,7 +28,7 @@ public class testingStuffNewSourceReading {
         String csvFilePath = "zipf_distribution100_5.csv";
 
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_CONTINUOUSLY, 1000)
-                .flatMap(new CSVSourceParallelized()).assignTimestampsAndWatermarks(strategy).keyBy(element -> element.key);
+                .flatMap(new CSVSourceFlatMap()).assignTimestampsAndWatermarks(strategy).keyBy(element -> element.key);
 
         //        DataStream<EventBasic> mainStream = env.readFile(
 //                        new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)),

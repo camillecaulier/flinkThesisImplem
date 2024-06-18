@@ -1,0 +1,21 @@
+{'id': 'fa23e74564e1a1dc0cdbf2ab8d85bee8', 'name': 'basicOperator', 'parallelism': 4, 'maxParallelism': 128, 'now': 1716375282960, 'subtasks':
+
+[{'subtask': 0, 'status': 'FINISHED', 'attempt': 0, 'host': 'lo
+calhost', 'endpoint': 'localhost:37123', 'start-time': 1716375275546, 'end-time': 1716375282799, 'duration': 7253, 'metrics': {'read-bytes': 68831721, 'read-bytes-complete': True, 'write-bytes': 0, 'write-b
+ytes-complete': True, 'read-records': 1504272, 'read-records-complete': True, 'write-records': 0, 'write-records-complete': True, 'accumulated-backpressured-time': 0, 'accumulated-idle-time': 0, 'accumulate
+d-busy-time': 7239.0}, 'taskmanager-id': 'localhost:36361-d3ff12', 'status-duration': {'CREATED': 6785, 'RUNNING': 7239, 'DEPLOYING': 6, 'INITIALIZING': 8, 'SCHEDULED': 0}, 'start_time': 1716375275546}, {'s
+ubtask': 1, 'status': 'FINISHED', 'attempt': 0, 'host': 'localhost', 'endpoint': 'localhost:37123', 'start-time': 1716375275617, 'end-time': 1716375280056, 'duration': 4439, 'metrics': {'read-bytes': 253234
+55, 'read-bytes-complete': True, 'write-bytes': 0, 'write-bytes-complete': True, 'read-records': 553441, 'read-records-complete': True, 'write-records': 0, 'write-records-complete': True, 'accumulated-backp
+ressured-time': 0, 'accumulated-idle-time': 2628, 'accumulated-busy-time': 1783.0}, 'taskmanager-id': 'localhost:36361-d3ff12', 'status-duration': {'CREATED': 6786, 'RUNNING': 4412, 'DEPLOYING': 9, 'INITIAL
+IZING': 18, 'SCHEDULED': 70}, 'start_time': 1716375275617}, {'subtask': 2, 'status': 'FINISHED', 'attempt': 0, 'host': 'localhost', 'endpoint': 'localhost:37123', 'start-time': 1716375275619, 'end-time': 17
+16375279497, 'duration': 3878, 'metrics': {'read-bytes': 11567000, 'read-bytes-complete': True, 'write-bytes': 0, 'write-bytes-complete': True, 'read-records': 252785, 'read-records-complete': True, 'write-
+records': 0, 'write-records-complete': True, 'accumulated-backpressured-time': 0, 'accumulated-idle-time': 2722, 'accumulated-busy-time': 806.0}, 'taskmanager-id': 'localhost:36361-d3ff12', 'status-duration
+': {'CREATED': 6787, 'RUNNING': 3529, 'DEPLOYING': 11, 'INITIALIZING': 338, 'SCHEDULED': 71}, 'start_time': 1716375275619}, {'subtask': 3, 'status': 'RUNNING', 'attempt': 0, 'host': 'localhost', 'endpoint':
+ 'localhost:37123', 'start-time': 1716375275620, 'end-time': -1, 'duration': 7340, 'metrics': {'read-bytes': 0, 'read-bytes-complete': False, 'write-bytes': 0, 'write-bytes-complete': False, 'read-records':
+ 0, 'read-records-complete': False, 'write-records': 0, 'write-records-complete': False, 'accumulated-backpressured-time': 0, 'accumulated-idle-time': 0, 'accumulated-busy-time': 0.0}, 'taskmanager-id': 'lo
+calhost:36361-d3ff12', 'status-duration': {'CREATED': 6787, 'RUNNING': 7319, 'DEPLOYING': 12, 'INITIALIZING': 9, 'SCHEDULED': 72}, 'start_time': 1716375275620}],
+
+
+
+
+

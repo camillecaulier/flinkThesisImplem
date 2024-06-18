@@ -46,6 +46,21 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-csv</artifactId>
+            <version>1.18.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-files</artifactId>
+            <version>1.18.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-core</artifactId>
+            <version>1.18.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -64,8 +79,11 @@
                             <finalName>flinkImplemProject</finalName>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+<!--                                    <mainClass>testingStuff.testingStuffBasic</mainClass>-->
                                     <mainClass>benchmarks.Benchmark</mainClass>
-<!--                                    <mainClass>source.CreateEventFiles</mainClass>-->
+<!--                                    <mainClass>testingStuff.testingStuffTryingToGetTheMetricsWithJavaSource</mainClass>-->
+
+                                    <!--                                    <mainClass>source.CreateEventFiles</mainClass>-->
 <!--                                    <mainClass>testingStuff.testingStuffHybridWindowKeyed</mainClass>-->
                                 </transformer>
                             </transformers>

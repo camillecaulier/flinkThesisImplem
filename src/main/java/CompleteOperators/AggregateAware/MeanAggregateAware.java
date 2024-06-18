@@ -2,50 +2,36 @@ package CompleteOperators.AggregateAware;
 
 import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
-import keygrouping.RoundRobin;
 import keygrouping.cam_n;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.java.io.TextInputFormat;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
-import org.apache.flink.streaming.api.windowing.assigners.TumblingEventTimeWindows;
-import org.apache.flink.streaming.api.windowing.time.Time;
-import processFunctions.partialFunctions.MaxPartialFunctionFakeWindowEndEvents;
-import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEvents;
-import processFunctions.reconciliationFunctionsComplete.MaxFunctionReconcileFakeWindowEndEvents;
-import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
+import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsSingleSource;
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
-import sourceGeneration.CSVSourceParallelized;
 
 import java.time.Duration;
 
-public class MeanAggregateAware implements CompleteOperator<EventBasic> {
+public class MeanAggregateAware extends CompleteOperator<EventBasic> {
 
-    private String csvFilePath;
-    private final StreamExecutionEnvironment env;
-    private final WatermarkStrategy<EventBasic> watermarkStrategy;
+
     int parallelism;
     int choices;
-    public MeanAggregateAware(String csvFilePath, StreamExecutionEnvironment env, int parallelism , int choices) {
-        this.csvFilePath = csvFilePath;
-        this.env = env;
-        this.watermarkStrategy = WatermarkStrategy
-                .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
-                .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp);
+    public MeanAggregateAware(String file, StreamExecutionEnvironment env, int parallelism , int choices,boolean isJavaSource ,int sourceParallelism) {
+        super(file,
+                env,
+                isJavaSource, sourceParallelism);
+
         this.parallelism = parallelism;
         this.choices = choices;
+
     }
 
     public DataStream<EventBasic> execute(){
-        DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy).name("source");
-
-
+        DataStream<EventBasic> mainStream = createSource();
 
         DataStream<EventBasic> split = mainStream
                 .partitionCustom(new cam_n(choices ,parallelism), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEvents(1000)).setParallelism(parallelism).name("aggregateAwareOperator");
+                .process(new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000)).setParallelism(parallelism).name("aggregateAwareOperator");
 
 
         DataStream<EventBasic> reconciliation = split

@@ -1,0 +1,2 @@
+starting fake prometheus
+vertex_ids: {'Source: Custom File Source': 'bc764cd8ddf7a0cff126f51c16239658', 'Split Reader: Custom File Source -> Map -> Timestamps/Watermarks': '20ba6b65f97481d5570070de90e4e791', 'roundRobinOperator': 'fa23e74564e1a1dc0cdbf2ab8d85bee8', 'reconciliation -> Sink: Unnamed': 'b6df8df3eb004a91972d0617003e36c0'}

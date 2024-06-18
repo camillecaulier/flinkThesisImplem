@@ -1,6 +1,8 @@
 package benchmarks;
 
 import CompleteOperators.AggregateAware.MaxAggregateAware;
+import CompleteOperators.Cam_roundrobin_choices.MeanCAMRoundRobin;
+import CompleteOperators.Hash.MeanHash;
 import CompleteOperators.RoundRobin.MaxRoundRobin;
 import CompleteOperators.AggregateAware.MeanAggregateAware;
 import CompleteOperators.RoundRobin.MeanRoundRobin;
@@ -11,12 +13,21 @@ import CompleteOperators.Hybrid.MaxHybrid;
 import CompleteOperators.Hybrid.MeanHybrid;
 import eventTypes.EventBasic;
 import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.api.functions.sink.SinkFunction;
+import sink.basicSinkFunction;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Benchmark {
 
@@ -26,18 +37,22 @@ public class Benchmark {
         printClassLocation(Benchmark.class);
 
         int mainParallelism = args[0].isEmpty() ? 10 : Integer.parseInt(args[0]);
+        int sourceParallelism = args[1].isEmpty() ? 3 : Integer.parseInt(args[1]);
         System.out.println("Main parallelism: " + mainParallelism);
 
-        String fileName  = args[1];
-        System.out.println("File name: " + fileName);
+        String fileName = args[2];
+        System.out.println("Directory name: " + fileName);
+
+        boolean isJavaSource = args[3].equals("javaSource");
 
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
-                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0),
-                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3),
-                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0),
-                        new BenchmarkParameters("MeanHybrid", mainParallelism/2, mainParallelism/2, 0)
-
+                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism),
+                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3, sourceParallelism),
+                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism),
+                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism),
+                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism),
+                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism)
 
 //                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
 //                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
@@ -45,64 +60,78 @@ public class Benchmark {
 //                        new BenchmarkParameters("MaxRoundRobin", mainParallelism, 0, 0)
                 )
         );
+        List<String> sources;
+        if (isJavaSource) {
+            sources = listParamsInFile(fileName);
+        } else {
+            String directory = System.getProperty("user.dir") + "/" + fileName + "/";
+            sources = listFilenamesInDirectory(directory);
+        }
 
-        String directory = System.getProperty("user.dir")+"/"+fileName+"/";
-        List<String> csvSources = listFilenamesInDirectory(directory);
+        printAllOperators(benchmarkParameters);
+
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
-        env.setRuntimeMode(RuntimeExecutionMode.BATCH);
+        env.setRuntimeMode(RuntimeExecutionMode.STREAMING);
 
         long totalStart = System.currentTimeMillis();
+
         //executeOrder66
         for (BenchmarkParameters benchmarkParameter : benchmarkParameters) {
 
-            for (String csvSource : csvSources) {
-                System.out.println("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + csvSource);
-                CompleteOperator<EventBasic> operator = createOperatorFromParameters(benchmarkParameter, directory + csvSource,env);
-                operator.execute();
+            for (String source : sources) {
+                System.out.println("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + source);
+                CompleteOperator<EventBasic> operator = createOperatorFromParameters(benchmarkParameter, source, env, isJavaSource);
+                DataStream<EventBasic> output = operator.execute();
+//                output.addSink(new basicSinkFunction());
                 long startTime = System.nanoTime();
 
-                env.execute("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + csvSource);
+                env.execute("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + source);
                 long endTime = System.nanoTime();
                 long duration = (endTime - startTime);
-                printMetrics(benchmarkParameter, csvSource, duration);
+                printMetrics(benchmarkParameter, source, duration);
 
 
             }
         }
         long totalEnd = System.currentTimeMillis();
-        long totalDuration = ((totalEnd - totalStart)/1000)/60;
+        long totalDuration = ((totalEnd - totalStart) / 1000) / 60;
 
         System.out.println("Total execution time: " + totalDuration + " minutes");
 
     }
 
 
-    public static CompleteOperator<EventBasic> createOperatorFromParameters(BenchmarkParameters benchmarkParameters, String csvFilePath, StreamExecutionEnvironment env){
+    public static CompleteOperator<EventBasic> createOperatorFromParameters(BenchmarkParameters benchmarkParameters, String csvFilePath, StreamExecutionEnvironment env, boolean isJavaSource) {
         String nameClass = benchmarkParameters.operator;
         int mainParallelism = benchmarkParameters.MainParallelism;
         int hybridParallelism = benchmarkParameters.HybridParallelism;
         int choices = benchmarkParameters.Choices;
+        int sourceParallelism = benchmarkParameters.sourceParallelism;
 
-        switch (nameClass){
+        switch (nameClass) {
             case "MeanBasic":
-                return new MeanBasic(csvFilePath,env,mainParallelism);
+                return new MeanBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
             case "MeanAggregateAware":
-                return new MeanAggregateAware(csvFilePath,env,mainParallelism,choices);
+                return new MeanAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism);
             case "MeanRoundRobin":
-                return new MeanRoundRobin(csvFilePath,env,mainParallelism);
+                return new MeanRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
             case "MeanHybrid":
-                return new MeanHybrid(csvFilePath,env,mainParallelism, hybridParallelism);
+                return new MeanHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism);
+            case "MeanCAMRoundRobin":
+                return new MeanCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism);
+            case "MeanHash":
+                return new MeanHash(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
 
 
             case "MaxBasic":
-                return new MaxBasic(csvFilePath,env,mainParallelism);
+                return new MaxBasic(csvFilePath, env, mainParallelism, isJavaSource);
             case "MaxHybrid":
-                return new MaxHybrid(csvFilePath,env,mainParallelism, hybridParallelism);
+                return new MaxHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource);
             case "MaxAggregateAware":
-                return new MaxAggregateAware(csvFilePath,env,mainParallelism,choices);
+                return new MaxAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource);
             case "MaxRoundRobin":
-                return new MaxRoundRobin(csvFilePath,env,mainParallelism);
+                return new MaxRoundRobin(csvFilePath, env, mainParallelism, isJavaSource);
             default: // add other lock classes here
                 System.err.println("Invalid class name " + nameClass);
                 System.exit(-1);
@@ -111,7 +140,6 @@ public class Benchmark {
         }
 
     }
-
 
 
     public static List<String> listFilenamesInDirectory(String directoryPath) {
@@ -123,7 +151,7 @@ public class Benchmark {
             for (File file : filesList) {
                 // Add only files to the list (ignore directories)
                 if (file.isFile()) {
-                    filenames.add(file.getName());
+                    filenames.add(directoryPath+file.getName());
                 }
             }
         } else {
@@ -133,8 +161,14 @@ public class Benchmark {
         return filenames;
     }
 
+    public static void printAllOperators(List<BenchmarkParameters> benchmarkList){
+        for (BenchmarkParameters operator : benchmarkList){
+            System.out.println(operator.operator);
+        }
+    }
+
     public static void printMetrics(BenchmarkParameters benchmarkParameter, String csvSource, long duration) {
-        System.out.println("metric:"+benchmarkParameter.operator+ "," + duration/1000000+","+benchmarkParameter.MainParallelism+","+benchmarkParameter.HybridParallelism+","+benchmarkParameter.Choices+","+csvSource);
+        System.out.println("metric:" + benchmarkParameter.operator + "," + duration / 1000000 + "," + benchmarkParameter.MainParallelism + "," + benchmarkParameter.HybridParallelism + "," + benchmarkParameter.Choices + "," + csvSource);
     }
 
     public static void printClassLocation(Class<?> clazz) {
@@ -152,6 +186,13 @@ public class Benchmark {
         }
     }
 
+
+    public static List<String> listParamsInFile(String fileName) throws IOException {
+        return Files.lines(Paths.get(fileName))
+                .skip(1) // Skips the first line of the file
+                .collect(Collectors.toList());
+    }
 }
+
 
 

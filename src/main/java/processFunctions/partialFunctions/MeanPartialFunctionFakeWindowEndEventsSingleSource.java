@@ -10,7 +10,7 @@ import org.apache.flink.util.Collector;
 import java.util.HashMap;
 
 
-public class MeanPartialFunctionFakeWindowEndEvents extends ProcessFunction<EventBasic, EventBasic> {
+public class MeanPartialFunctionFakeWindowEndEventsSingleSource extends ProcessFunction<EventBasic, EventBasic> {
 
 
 
@@ -23,7 +23,7 @@ public class MeanPartialFunctionFakeWindowEndEvents extends ProcessFunction<Even
 
 
 
-    public MeanPartialFunctionFakeWindowEndEvents(long windowTime) {
+    public MeanPartialFunctionFakeWindowEndEventsSingleSource(long windowTime) {
         this.windowTime = windowTime;//in ms
         this.startWindowTime = - windowTime;
         this.endWindowTime = 0;
@@ -41,10 +41,19 @@ public class MeanPartialFunctionFakeWindowEndEvents extends ProcessFunction<Even
     public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
         String key = event.key;
 
-//                int subtaskIndex = getRuntimeContext().getIndexOfThisSubtask();
-//        System.out.println("subtaskIndex = " + subtaskIndex + " key = " + key + " event.value.timeStamp = " + event.value.timeStamp +  " startWindowTime = " + startWindowTime + " endWindowTime = " + endWindowTime + " currentTime = " + currentTime);
-//        System.out.println(ctx.timestamp() + " " +getRuntimeContext().getIndexOfThisSubtask() + " " + currentTime);
-        if(ctx.timestamp() > endWindowTime){
+//        int subtaskIndex = getRuntimeContext().getIndexOfThisSubtask();
+//        System.out.println("subtaskIndex = " + subtaskIndex);
+
+//        if(getRuntimeContext().getIndexOfThisSubtask()== 0){
+//            System.out.println(event.value.timeStamp);
+//            System.out.println(ctx.timestamp());
+//            System.out.println(ctx.timerService().currentWatermark());
+//            System.out.println(ctx.timerService().currentProcessingTime());
+//        }
+
+        if(event.value.timeStamp > endWindowTime){
+//        if(event.value.timeStamp > endWindowTime){
+            // If the event is in the next window, output the current maximum values and update the window times
 //            printMapState();
             outputMaxValues(out);
             startWindowTime = endWindowTime;
@@ -53,7 +62,7 @@ public class MeanPartialFunctionFakeWindowEndEvents extends ProcessFunction<Even
         }
 
         if(event.value.timeStamp < startWindowTime){
-            System.out.println("WHAT THE FUCK AKLERT ALERT ALERT RUN AWAY!!!! SOMETHING ISN'T WORKING!!!!");
+            System.out.println("AKLERT ALERT ALERT RUN AWAY!!!! SOMETHING ISN'T WORKING!!!!");
         }
 
         // If no maximum value has been stored yet or the incoming value is greater, update the MapState
@@ -62,8 +71,12 @@ public class MeanPartialFunctionFakeWindowEndEvents extends ProcessFunction<Even
             SumCountMap.put(key, new Tuple2<>(event.value.valueInt , 1));
         }
         else{
+//            long startTime = System.nanoTime();
             Tuple2<Integer, Integer> curr = SumCountMap.get(key);
             SumCountMap.put(key, new Tuple2<>(curr.f0 + event.value.valueInt , curr.f1 + 1));
+//            long endTime = System.nanoTime();  // End timing
+//            long duration = endTime - startTime;
+//            System.out.println("Time taken to update map: " + duration);
         }
 
 

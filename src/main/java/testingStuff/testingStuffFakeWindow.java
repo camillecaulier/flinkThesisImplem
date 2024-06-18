@@ -15,7 +15,7 @@ import org.apache.flink.util.OutputTag;
 import popularKeySwitch.SwitchNodeEventBasic;
 import processFunctions.partialFunctions.MaxPartialFunctionFakeWindow;
 import processFunctions.reconciliationFunctionsComplete.MaxWindowProcessFunction;
-import sourceGeneration.CSVSourceParallelized;
+import sourceGeneration.CSVSourceFlatMap;
 
 import java.time.Duration;
 
@@ -42,7 +42,7 @@ public class testingStuffFakeWindow {
 //                .addSource(new CSVSource(csvFilePath));
 
         DataStream<EventBasic> mainStream = env.readFile(  new TextInputFormat(new org.apache.flink.core.fs.Path(csvFilePath)), csvFilePath, FileProcessingMode.PROCESS_ONCE, 1000).setParallelism(1)
-                .flatMap(new CSVSourceParallelized()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
+                .flatMap(new CSVSourceFlatMap()).setParallelism(1).assignTimestampsAndWatermarks(watermarkStrategy);
 
 
         // Create OutputTags for different operators

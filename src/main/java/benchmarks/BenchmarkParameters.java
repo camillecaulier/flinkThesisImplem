@@ -6,11 +6,14 @@ public class BenchmarkParameters {
     int Choices;
     String operator;
 
-    public BenchmarkParameters(String operator, int MainParallelism, int HybridParallelism, int Choices ){
+    int sourceParallelism;
+
+    public BenchmarkParameters(String operator, int MainParallelism, int HybridParallelism, int Choices, int sourceParallelism){
         this.MainParallelism = MainParallelism;
         this.HybridParallelism = HybridParallelism;
         this.Choices = Choices;
         this.operator = operator;
+        this.sourceParallelism = sourceParallelism;
     }
 
 }

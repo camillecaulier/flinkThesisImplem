@@ -82,9 +82,8 @@ public class MeanValuesByWindow {
     }
 
     public static void main(String[] args) {
-//        String filePath = "data_10_100000/zipf_distribution_100_1_5_1.4.csv";
-//        String filePath = "data_10_100000/zipf_distribution_100000_2_10_1.0E-15.csv";
-        String filePath = "data_10_100000/zipf_distribution_100000_2_10_1.4.csv";
+        String filePath = "dataJavaSourceTestData/zipf_distribution_100_2_2_1.4.csv";
+//        String filePath = "dataJavaSourceTestData/zipf_distribution_100_2_10_1.0E-15.csv";
         long windowSize = 1000;
         processFile(filePath, windowSize);
     }

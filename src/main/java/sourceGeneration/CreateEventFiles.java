@@ -11,11 +11,15 @@ import eventTypes.Value;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import eventTypes.EventBasic;
+import org.apache.commons.math3.random.RandomGenerator;
+import org.apache.commons.math3.random.Well19937c;
 import org.apache.commons.text.RandomStringGenerator;
 import org.apache.commons.math3.distribution.ZipfDistribution;
 
 
 public class CreateEventFiles {
+
+    private static long seed = 123456L;
     public static void UniformDistribution(int stampsPerSecond, String filename, int keySize, int time) {
         try (Writer writer = new FileWriter(filename);
              CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT)){
@@ -61,10 +65,10 @@ public class CreateEventFiles {
 
 
     public static void zipfDistribution(int stampsPerSecond, String filename, int keySize, int time, double skew) throws IOException {
-        try (Writer writer = new FileWriter(filename);
-             CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT)){
+        try (Writer writer = new FileWriter(filename); CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT)){
+            RandomGenerator randomGenerator = new Well19937c(seed);
 
-            ZipfDistribution zipfDistribution = new ZipfDistribution((int) Math.pow(26,keySize), skew); // 26 for the number of characters in the English alphabet
+            ZipfDistribution zipfDistribution = new ZipfDistribution(randomGenerator,(int) Math.pow(26,keySize), skew); // 26 for the number of characters in the English alphabet
 
             for(int t = 0 ; t < time; t++ ){
                 for (int i = 0; i < stampsPerSecond; i++) {
@@ -110,18 +114,17 @@ public class CreateEventFiles {
 
         double[] skewValues = {0.000000000000001, 1.4};
         int[] keySizes = {2};
-        int[] timeValues = {10};
-        int stampsPerSecond = 100000;
+        int[] windows = {2};
+        int stampsPerSecond = 100;
         for (int keySize : keySizes) {
-            for (int time : timeValues) {
+            for (int time : windows) {
                 for (double skew : skewValues) {
-                    String filename = "data_10_100000/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+                    String filename = "dataJavaSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
                     zipfDistribution(stampsPerSecond, filename, keySize, time, skew);
                 }
             }
         }
 
-//        zipfDistribution(1000, "data/zipf_distribution1000_25.csv", 2, 25, 1.5);
 
 
     }

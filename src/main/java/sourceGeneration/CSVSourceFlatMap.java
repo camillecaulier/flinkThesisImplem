@@ -5,7 +5,7 @@ import eventTypes.Value;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.util.Collector;
 
-public class CSVSourceParallelized implements FlatMapFunction<String, EventBasic> {
+public class CSVSourceFlatMap implements FlatMapFunction<String, EventBasic> {
     @Override
     public void flatMap(String value, Collector<EventBasic> out) throws Exception {
         //Assuming CSV format is Key,ValueInt,ValueTimeStamp

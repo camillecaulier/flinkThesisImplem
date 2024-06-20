@@ -17,13 +17,10 @@ import java.time.Duration;
 public class MaxBasic extends CompleteOperator<EventBasic> {
 
     int parallelism;
-    public MaxBasic(String file, StreamExecutionEnvironment env, int parallelism, boolean isJavaSource) {
+    public MaxBasic(String file, StreamExecutionEnvironment env, int parallelism, boolean isJavaSource,int sourceParallelism) {
         super(file,
                 env,
-                WatermarkStrategy
-                        .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
-                        .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp),
-                isJavaSource);
+                isJavaSource,sourceParallelism);
         this.parallelism = parallelism;
     }
 

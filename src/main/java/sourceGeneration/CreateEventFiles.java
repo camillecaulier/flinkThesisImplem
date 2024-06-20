@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -81,10 +82,54 @@ public class CreateEventFiles {
                 }
             }
 
-            //add end of window
+            //add end of all processing
 
             for (int i = 0; i < 20; i++) {
                 Value value = new Value(i,(time) * 1000L + 500);
+                csvPrinter.printRecord("ENDD", value.valueInt, value.timeStamp);
+            }
+
+
+            System.out.println("Events written to file: " + filename);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    public static void zipfDistributionMultipleSources(int stampsPerSecond, String filename, int keySize, int numberOfWindows, double skew, int sources) throws IOException {
+        try (Writer writer = new FileWriter(filename); CSVPrinter csvPrinter = new CSVPrinter(writer, CSVFormat.DEFAULT)){
+            List<RandomGenerator> randomGenerators = new ArrayList<>();
+            for(int i = 0 ;i < sources; i++){
+                randomGenerators.add(new Well19937c(seed + i));
+            }
+
+            List<ZipfDistribution> zipfDistributions = new ArrayList<>();
+            for(int i = 0 ;i < sources; i++){
+                zipfDistributions.add(new ZipfDistribution(randomGenerators.get(i),(int) Math.pow(26,keySize), skew));
+            }
+            RandomGenerator randomGenerator = new Well19937c(seed);
+
+            ZipfDistribution zipfDistribution = new ZipfDistribution(randomGenerator,(int) Math.pow(26,keySize), skew); // 26 for the number of characters in the English alphabet
+
+            for(int t = 0 ; t < numberOfWindows; t++ ){
+                for(int s = 0 ; s < sources; s++){
+                    for (int i = 0; i < stampsPerSecond/sources; i++) {
+                        Value value = new Value(i,t * 1000L + 500);
+                        EventBasic event = new EventBasic(convertToLetter(zipfDistribution.sample()), value);
+
+                        // Write event to CSV
+                        csvPrinter.printRecord(event.key, value.valueInt, value.timeStamp);
+
+                    }
+                }
+            }
+
+            //add end of all processing
+
+            for (int i = 0; i < 20; i++) {
+                Value value = new Value(i,(numberOfWindows) * 1000L + 500);
                 csvPrinter.printRecord("ENDD", value.valueInt, value.timeStamp);
             }
 
@@ -119,7 +164,7 @@ public class CreateEventFiles {
         for (int keySize : keySizes) {
             for (int time : windows) {
                 for (double skew : skewValues) {
-                    String filename = "dataJavaSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+                    String filename = "dataJavaMultiSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
                     zipfDistribution(stampsPerSecond, filename, keySize, time, skew);
                 }
             }

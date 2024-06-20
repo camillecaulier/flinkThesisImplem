@@ -125,13 +125,13 @@ public class Benchmark {
 
 
             case "MaxBasic":
-                return new MaxBasic(csvFilePath, env, mainParallelism, isJavaSource);
+                return new MaxBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism );
             case "MaxHybrid":
-                return new MaxHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource);
+                return new MaxHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism );
             case "MaxAggregateAware":
-                return new MaxAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource);
+                return new MaxAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism   );
             case "MaxRoundRobin":
-                return new MaxRoundRobin(csvFilePath, env, mainParallelism, isJavaSource);
+                return new MaxRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
             default: // add other lock classes here
                 System.err.println("Invalid class name " + nameClass);
                 System.exit(-1);

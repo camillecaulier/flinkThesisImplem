@@ -30,7 +30,7 @@ public class MeanCAMRoundRobin extends CompleteOperator<EventBasic> {
 
         DataStream<EventBasic> split = mainStream
                 .partitionCustom(new cam_roundRobin(choices ,parallelism), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000)).setParallelism(parallelism).name("camdOperator");
+                .process(createPartialFunctions(true)).setParallelism(parallelism).name("camdOperator");
 
 
         DataStream<EventBasic> reconciliation = split

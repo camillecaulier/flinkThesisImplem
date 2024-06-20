@@ -19,13 +19,10 @@ public class MaxAggregateAware extends CompleteOperator<EventBasic> {
 
     int parallelism;
     int choices;
-    public MaxAggregateAware(String file, StreamExecutionEnvironment env , int splitParallelism , int choices, boolean isJavaSource) {
+    public MaxAggregateAware(String file, StreamExecutionEnvironment env , int splitParallelism , int choices, boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                WatermarkStrategy
-                        .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
-                        .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp),
-                isJavaSource);
+                isJavaSource, sourceParallelism);
 
 
         this.parallelism = splitParallelism;

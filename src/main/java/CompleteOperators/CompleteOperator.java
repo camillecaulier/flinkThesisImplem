@@ -15,6 +15,8 @@ import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsMultiSource;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsSingleSource;
+import processFunctions.reconciliationFunctionsComplete.MeanFunctionFakeWindowMultiSource;
+import processFunctions.reconciliationFunctionsComplete.MeanFunctionFakeWindowSingleSource;
 import sourceGeneration.ZipfStringSource;
 import sourceGeneration.ZipfStringSourceRichProcessFunction;
 
@@ -85,14 +87,24 @@ public abstract class CompleteOperator<T> {
         }
     }
 
-    public ProcessFunction<EventBasic, EventBasic> createPartialFunctions(){
-        if(sourceParallelism > 1){
-            JavaSourceParameters parameters = getJavaSourceParameters(file);
-            return new MeanPartialFunctionFakeWindowEndEventsMultiSource(1000, outOfOrderness,parameters.numWindow);
+    public ProcessFunction<EventBasic, EventBasic> createPartialFunctions(boolean needReconciliation ){
+        if(needReconciliation){
+            if (sourceParallelism > 1){
+                return new MeanPartialFunctionFakeWindowEndEventsMultiSource(1000, outOfOrderness,1);
+            }
+            else{
+                return new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000);
+            }
+        }else{ // DOESN'T NEED RECONCILIATION
+            if(sourceParallelism > 1){
+                JavaSourceParameters parameters = getJavaSourceParameters(file);
+                return new MeanFunctionFakeWindowMultiSource(1000, outOfOrderness,parameters.numWindow);
+            }
+            else{
+                return new MeanFunctionFakeWindowSingleSource(1000);
+            }
         }
-        else{
-            return new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000);
-        }
+
     }
 
 }

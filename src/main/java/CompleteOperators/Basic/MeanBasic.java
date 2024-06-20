@@ -17,9 +17,6 @@ public class MeanBasic extends CompleteOperator<EventBasic> {
     public MeanBasic(String file, StreamExecutionEnvironment env,int parallelism,boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                WatermarkStrategy
-                        .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
-                        .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp),
                 isJavaSource,sourceParallelism);
 
 

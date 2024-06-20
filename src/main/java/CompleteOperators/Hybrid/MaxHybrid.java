@@ -26,13 +26,10 @@ public class MaxHybrid extends CompleteOperator<EventBasic> {
 
     int splitParallelism;
 
-    public MaxHybrid(String file, StreamExecutionEnvironment env, int parallelism, int splitParallelism, boolean isJavaSource){
+    public MaxHybrid(String file, StreamExecutionEnvironment env, int parallelism, int splitParallelism, boolean isJavaSource, int sourceParallelism){
         super(file,
                 env,
-                WatermarkStrategy
-                        .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
-                        .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp),
-                isJavaSource);
+                isJavaSource, sourceParallelism);
         this.parallelism = parallelism;
         this.splitParallelism = splitParallelism;
     }

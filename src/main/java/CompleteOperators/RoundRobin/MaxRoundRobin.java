@@ -17,17 +17,14 @@ import java.time.Duration;
 public class MaxRoundRobin extends CompleteOperator<EventBasic> {
 
     int parallelism;
-    int choices;
-    public MaxRoundRobin(String file, StreamExecutionEnvironment env , int parallelism, boolean isJavaSource) {
+    
+    public MaxRoundRobin(String file, StreamExecutionEnvironment env , int parallelism, boolean isJavaSource,int sourceParallelism) {
         super(file,
                 env,
-                WatermarkStrategy
-                        .<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(500))
-                        .withTimestampAssigner((element, recordTimestamp) -> element.value.timeStamp),
-                isJavaSource);
+                isJavaSource,sourceParallelism);
 
         this.parallelism = parallelism;
-        this.choices = choices;
+
     }
 
     public DataStream<EventBasic> execute(){
@@ -35,7 +32,7 @@ public class MaxRoundRobin extends CompleteOperator<EventBasic> {
 
         DataStream<EventBasic> operatorBasicStream = mainStream
                 .partitionCustom(new RoundRobin(), value->value.key )
-                .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(this.parallelism).name("roundRobinOperator");
+                .process(createPartialFunctions(true)).setParallelism(this.parallelism).name("roundRobinOperator");
 
         DataStream<EventBasic> reconciliation = operatorBasicStream
                 .process(new MaxFunctionReconcileFakeWindowEndEvents(1000, this.parallelism)).setParallelism(1).name("reconciliation");

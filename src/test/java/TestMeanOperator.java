@@ -49,29 +49,7 @@ public class TestMeanOperator  {
     }
 
 
-    public static Set<EventBasic> readCSV(String filePath) {
-        Set<EventBasic> result = new HashSet<>();
-        String line;
-        String csvSplitBy = ",";
 
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            br.readLine();
-
-            while ((line = br.readLine()) != null) {
-                String[] values = line.split(csvSplitBy);
-                long window = Long.parseLong(values[0]);
-                String key = values[1];
-                int mean = Integer.parseInt(values[2]);
-
-                EventBasic wkm = new EventBasic(key, mean, window);
-                result.add(wkm);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return result;
-    }
 
 
     @Test
@@ -105,7 +83,7 @@ public class TestMeanOperator  {
 
 //            sinkCollect.values.clear();
 
-            Set<EventBasic> expectedEvents = readCSV(csvFilePathCorrect);
+            Set<EventBasic> expectedEvents = TestUtilities.readCSV(csvFilePathCorrect);
             for(EventBasic event : collectedEvents){
 //                System.out.println(event);
                 assert(expectedEvents.contains(event));
@@ -147,7 +125,7 @@ public class TestMeanOperator  {
 
             }
 
-            Set<EventBasic> expectedEvents = readCSV(csvFilePathCorrect);
+            Set<EventBasic> expectedEvents = TestUtilities.readCSV(csvFilePathCorrect);
 //            System.out.println(expectedEvents);
             for(EventBasic event : collectedEvents){
                 assert(expectedEvents.contains(event));
@@ -194,7 +172,7 @@ public class TestMeanOperator  {
             }
             sinkCollect.values.clear();
 
-            Set<EventBasic> expectedEvents = readCSV(csvFilePathCorrect);
+            Set<EventBasic> expectedEvents = TestUtilities.readCSV(csvFilePathCorrect);
 //            System.out.println(collectedEvents);
             for(EventBasic event : collectedEvents){
 //                System.out.println(event);

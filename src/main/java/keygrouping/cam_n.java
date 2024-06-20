@@ -50,7 +50,7 @@ public class cam_n implements Partitioner<String> {
 
         }
 
-        int minCardinality = Integer.MAX_VALUE;
+        int minCount = Integer.MAX_VALUE;
         int choice = 0;
 
 
@@ -61,8 +61,8 @@ public class cam_n implements Partitioner<String> {
 
             AtomicInteger count = tupleCount.get(partition);
             synchronized (count){
-                if (count.get() < minCardinality) {
-                    minCardinality = count.get();
+                if (count.get() < minCount) {
+                    minCount = count.get();
                     choice = partition;
                 }
             }

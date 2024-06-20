@@ -4,6 +4,7 @@ package CompleteOperators.Hybrid;
 import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
+import keygrouping.basicHash;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -46,10 +47,17 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
                 .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1).name("switchNodeEventBasic");
 
         //basic operator
+//        DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
+//                .keyBy(event -> event.key)
+//                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
+//                .process(new MeanWindowProcessFunction()).setParallelism(parallelism).name("basicOperator");
+
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
-                .keyBy(event -> event.key)
-                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-                .process(new MeanWindowProcessFunction()).setParallelism(parallelism).name("basicOperator");
+                .partitionCustom(new basicHash(), value->value.key ) //any cast
+                .process(createPartialFunctions(false)).setParallelism(splitParallelism).name("hashOperator");
+
+
+
 
         // time to do the thingy
         DataStream<EventBasic> operatorSplitStream = popularFilterStream.getSideOutput(operatorAggregateTag);
@@ -57,7 +65,7 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000)).setParallelism(splitParallelism).name("splitOperator");
+                .process(createPartialFunctions(true)).setParallelism(splitParallelism).name("splitOperator");
 
 
         DataStream<EventBasic> reconciliation = split

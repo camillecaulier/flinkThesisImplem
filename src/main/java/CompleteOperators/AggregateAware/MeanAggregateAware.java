@@ -31,14 +31,13 @@ public class MeanAggregateAware extends CompleteOperator<EventBasic> {
 
         DataStream<EventBasic> split = mainStream
                 .partitionCustom(new cam_n(choices ,parallelism), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000)).setParallelism(parallelism).name("aggregateAwareOperator");
+                .process(createPartialFunctions(false)).setParallelism(parallelism).name("aggregateAwareOperator");
 
 
-        DataStream<EventBasic> reconciliation = split
-                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1).name("reconciliation");
+//        DataStream<EventBasic> reconciliation = split
+//                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,parallelism)).setParallelism(1).name("reconciliation");
 
-//        split.print("split").setParallelism(1);
-//        reconciliation.print("reconciliation").setParallelism(1);
-        return reconciliation;
+
+        return split;
     }
 }

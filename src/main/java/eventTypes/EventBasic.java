@@ -23,7 +23,7 @@ public class EventBasic {
 
     public EventBasic(String key, int valueInt, long valueTimeStamp, int valueTmp){
         this.key = key;
-        this.value = new Value(valueInt, valueTimeStamp);
+        this.value = new Value(valueInt, valueTimeStamp, valueTmp);
     }
     @Override
     public String toString() {
@@ -46,7 +46,7 @@ public class EventBasic {
 
     @Override
     public int hashCode() {
-        return Objects.hash(key, value.timeStamp, value.valueInt, value.valueTmp );
+        return Objects.hash(key, value.timeStamp, value.valueInt);
     }
 
 }

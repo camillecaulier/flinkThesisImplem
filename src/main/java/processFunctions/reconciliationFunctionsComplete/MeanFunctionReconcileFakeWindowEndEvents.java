@@ -101,13 +101,6 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
         return meanMap;
     }
 
-    public long getTimeStampForWindow(){
-        /**
-         * this is for when we create windows larger than 1000 and therefore the windows need to be made larger not really the objective for now
-         */
-        return 0;
-
-    }
 
 
 }

@@ -53,7 +53,7 @@ public class MeanRoundRobin extends CompleteOperator<EventBasic> {
 
         DataStream<EventBasic> split = mainStream
                 .partitionCustom(new RoundRobin(), value->value.key ) //any cast
-                .process(new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000)).setParallelism(parallelism).name("roundRobinOperator");
+                .process(createPartialFunctions(true)).setParallelism(parallelism).name("roundRobinOperator");
 
 
 

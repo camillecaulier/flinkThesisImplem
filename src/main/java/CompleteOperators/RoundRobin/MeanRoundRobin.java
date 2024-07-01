@@ -9,6 +9,7 @@ import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+import processFunctions.dummyNode;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsSingleSource;
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
 
@@ -48,10 +49,12 @@ public class MeanRoundRobin extends CompleteOperator<EventBasic> {
 
         DataStream<EventBasic> mainStream = createSource();
 
+        DataStream<EventBasic> dummy = mainStream.process(new dummyNode()).setParallelism(1);
 
 
 
-        DataStream<EventBasic> split = mainStream
+
+        DataStream<EventBasic> split = dummy
                 .partitionCustom(new RoundRobin(parallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(true)).setParallelism(parallelism).name("roundRobinOperator");
 

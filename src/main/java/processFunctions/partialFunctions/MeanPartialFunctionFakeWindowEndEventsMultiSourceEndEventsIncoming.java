@@ -35,7 +35,6 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
 
     @Override
     public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
-        String key = event.key;
 
         if(Objects.equals(event.key, WINDOW_END)){
             long timeWindow = checkAllEndWindowEventsReceived(event);
@@ -46,6 +45,7 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
         else{
             if(!buffer.containsKey(event.value.timeStamp)){
                 buffer.put(event.value.timeStamp, new ArrayList<>());
+                buffer.get(event.value.timeStamp).add(event);
             }else{
                 buffer.get(event.value.timeStamp).add(event);
             }

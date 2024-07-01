@@ -33,9 +33,9 @@ public class TestMeanOperatorJavaMultiSource {
     final Class[] operators = {
 //            MeanBasic.class,
 //            MeanHybrid.class,
-            MeanAggregateAware.class,
+//            MeanAggregateAware.class,
 //            MeanHash.class,
-//            MeanRoundRobin.class,
+            MeanRoundRobin.class,
 //            MeanCAMRoundRobin.class,
 //            MeanHashRoundRobin.class
 

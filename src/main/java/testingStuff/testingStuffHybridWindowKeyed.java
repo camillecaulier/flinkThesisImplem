@@ -61,7 +61,7 @@ public class testingStuffHybridWindowKeyed {
 
 
         DataStream<Tuple2<String, Integer>> split = ( operatorAggregateStream
-                .partitionCustom(new RoundRobin(), value->value.f0 ))
+                .partitionCustom(new RoundRobin(5), value->value.f0 ))
                 .process(new MaxPartialFunction()).setParallelism(5);
 
 

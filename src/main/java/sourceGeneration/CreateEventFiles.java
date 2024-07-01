@@ -109,15 +109,13 @@ public class CreateEventFiles {
             for(int i = 0 ;i < sources; i++){
                 zipfDistributions.add(new ZipfDistribution(randomGenerators.get(i),(int) Math.pow(26,keySize), skew));
             }
-            RandomGenerator randomGenerator = new Well19937c(seed);
 
-            ZipfDistribution zipfDistribution = new ZipfDistribution(randomGenerator,(int) Math.pow(26,keySize), skew); // 26 for the number of characters in the English alphabet
 
             for(int t = 0 ; t < numberOfWindows; t++ ){
                 for(int s = 0 ; s < sources; s++){
                     for (int i = 0; i < stampsPerSecond/sources; i++) {
                         Value value = new Value(i,t * 1000L + 500);
-                        EventBasic event = new EventBasic(convertToLetter(zipfDistribution.sample()), value);
+                        EventBasic event = new EventBasic(convertToLetter(zipfDistributions.get(s).sample()), value);
 
                         // Write event to CSV
                         csvPrinter.printRecord(event.key, value.valueInt, value.timeStamp);
@@ -157,15 +155,42 @@ public class CreateEventFiles {
 //        }
 
 
-        double[] skewValues = {0.000000000000001, 1.4};
+//        double[] skewValues = {0.000000000000001, 1.4};
+//        int[] keySizes = {2};
+//        int[] windows = {10};
+//        int stampsPerSecond = 100;
+//        for (int keySize : keySizes) {
+//            for (int time : windows) {
+//                for (double skew : skewValues) {
+//                    String filename = "dataJavaMultiSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+//                    zipfDistributionMultipleSources(stampsPerSecond, filename, keySize, time, skew,4);
+//                }
+//            }
+//        }
+
+
+//        double[] skewValues = {0.000000000000001, 1.4};
+//        int[] keySizes = {2};
+//        int[] windows = {5};
+//        int stampsPerSecond = 10000;
+//        for (int keySize : keySizes) {
+//            for (int time : windows) {
+//                for (double skew : skewValues) {
+//                    String filename = "dataJavaMultiSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+//                    zipfDistributionMultipleSources(stampsPerSecond, filename, keySize, time, skew,4);
+//                }
+//            }
+//        }
+
+        double[] skewValues = {1.4};
         int[] keySizes = {2};
         int[] windows = {2};
-        int stampsPerSecond = 100;
+        int stampsPerSecond = 20;
         for (int keySize : keySizes) {
             for (int time : windows) {
                 for (double skew : skewValues) {
                     String filename = "dataJavaMultiSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
-                    zipfDistribution(stampsPerSecond, filename, keySize, time, skew);
+                    zipfDistributionMultipleSources(stampsPerSecond, filename, keySize, time, skew,4);
                 }
             }
         }

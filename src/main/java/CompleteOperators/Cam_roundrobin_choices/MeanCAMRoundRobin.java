@@ -19,7 +19,7 @@ public class MeanCAMRoundRobin extends CompleteOperator<EventBasic> {
     public MeanCAMRoundRobin(String file, StreamExecutionEnvironment env, int parallelism , int choices, boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource, sourceParallelism);
+                isJavaSource, sourceParallelism,parallelism);
 
         this.choices = choices;
         this.parallelism = parallelism;

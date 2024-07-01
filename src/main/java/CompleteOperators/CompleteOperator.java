@@ -14,11 +14,14 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.streaming.api.functions.source.FileProcessingMode;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsMultiSource;
+import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsSingleSource;
+import processFunctions.reconciliationFunctionsComplete.MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming;
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionFakeWindowMultiSource;
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionFakeWindowSingleSource;
 import sourceGeneration.ZipfStringSource;
 import sourceGeneration.ZipfStringSourceRichProcessFunction;
+import sourceGeneration.ZipfStringSourceRichProcessFunctionEndWindow;
 
 import java.time.Duration;
 
@@ -32,14 +35,17 @@ public abstract class CompleteOperator<T> {
     public int sourceParallelism;
 
     public int outOfOrderness = 10;
-    public WatermarkStrategy<EventBasic> watermarkStrategy =WatermarkStrategy.<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(outOfOrderness))
+
+    public int parallelism;
+    public WatermarkStrategy<EventBasic> watermarkStrategy = WatermarkStrategy.<EventBasic>forBoundedOutOfOrderness(Duration.ofMillis(outOfOrderness))
             .withTimestampAssigner((SerializableTimestampAssigner<EventBasic>) (element, recordTimestamp) -> element.value.timeStamp);
 
-    public CompleteOperator(String file,StreamExecutionEnvironment env, boolean isJavaSource, int sourceParallelism){
+    public CompleteOperator(String file,StreamExecutionEnvironment env, boolean isJavaSource, int sourceParallelism, int parallelism){
         this.env = env;
         this.isJavaSource = isJavaSource;
         this.file = file;
         this.sourceParallelism = sourceParallelism;
+        this.parallelism = parallelism;
     }
     public abstract DataStream<T> execute();
 
@@ -56,12 +62,17 @@ public abstract class CompleteOperator<T> {
                     .name("source");
         }
         else if(isJavaSource && sourceParallelism > 1){
-            System.out.println("using java source");
+            System.out.println("using java multi source");
             JavaSourceParameters parameters = getJavaSourceParameters(file);
-            return env.addSource(new ZipfStringSourceRichProcessFunction(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism))
+//            return env.addSource(new ZipfStringSourceRichProcessFunction(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism))
+//                    .setParallelism(sourceParallelism)
+//                    .assignTimestampsAndWatermarks(watermarkStrategy)
+//                    .setParallelism(sourceParallelism)
+//                    .name("source");
+            return env.addSource(new ZipfStringSourceRichProcessFunctionEndWindow(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism,parallelism))
                     .setParallelism(sourceParallelism)
-                    .assignTimestampsAndWatermarks(watermarkStrategy)
-                    .setParallelism(sourceParallelism)
+//                    .assignTimestampsAndWatermarks(watermarkStrategy)
+//                    .setParallelism(sourceParallelism)
                     .name("source");
         }
         else {
@@ -90,7 +101,8 @@ public abstract class CompleteOperator<T> {
     public ProcessFunction<EventBasic, EventBasic> createPartialFunctions(boolean needReconciliation ){
         if(needReconciliation){
             if (sourceParallelism > 1){
-                return new MeanPartialFunctionFakeWindowEndEventsMultiSource(1000, outOfOrderness,1);
+//                return new MeanPartialFunctionFakeWindowEndEventsMultiSource(1000, outOfOrderness,1);
+                return new MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(sourceParallelism);
             }
             else{
                 return new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000);
@@ -98,8 +110,10 @@ public abstract class CompleteOperator<T> {
         }else{ // DOESN'T NEED RECONCILIATION
             if(sourceParallelism > 1){
                 JavaSourceParameters parameters = getJavaSourceParameters(file);
-                return new MeanFunctionFakeWindowMultiSource(1000, outOfOrderness,parameters.numWindow);
+//                return new MeanFunctionFakeWindowMultiSource(1000, outOfOrderness,parameters.numWindow);
+                return new MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(sourceParallelism);
             }
+
             else{
                 return new MeanFunctionFakeWindowSingleSource(1000);
             }

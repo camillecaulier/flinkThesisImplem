@@ -3,6 +3,7 @@ import CompleteOperators.Basic.MeanBasic;
 import CompleteOperators.Cam_roundrobin_choices.MeanCAMRoundRobin;
 import CompleteOperators.CompleteOperator;
 import CompleteOperators.Hash.MeanHash;
+import CompleteOperators.HashRoundRobin.MeanHashRoundRobin;
 import CompleteOperators.Hybrid.MeanHybrid;
 import CompleteOperators.RoundRobin.MeanRoundRobin;
 import eventTypes.EventBasic;
@@ -20,7 +21,7 @@ import java.util.Set;
 public class TestMeanOperatorJavaSingleSource {
 
     public boolean isJavaSource = true;
-    public int sourceParallelism = 1;
+    public int sourceParallelism = 1; //THIS MUST BE 1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public RuntimeExecutionMode executionMode = RuntimeExecutionMode.STREAMING;
     public int parallelism = 6;// good number for testing
     final Class[] operators = {
@@ -29,7 +30,8 @@ public class TestMeanOperatorJavaSingleSource {
             MeanAggregateAware.class,
             MeanRoundRobin.class,
             MeanHash.class,
-            MeanCAMRoundRobin.class
+            MeanCAMRoundRobin.class,
+            MeanHashRoundRobin.class
 
     };
 
@@ -47,6 +49,8 @@ public class TestMeanOperatorJavaSingleSource {
             return new MeanHash(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
         } else if (clazz == MeanCAMRoundRobin.class) {
             return new MeanCAMRoundRobin(javaSourceParameters, env, parallelism, 3, isJavaSource, sourceParallelism);
+        } else if (clazz == MeanHashRoundRobin.class){
+            return new MeanHashRoundRobin(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
         } else{
             return null;
         }
@@ -259,7 +263,7 @@ public class TestMeanOperatorJavaSingleSource {
             for(EventBasic event : collectedEvents){
 
                 if(!event.key.equals("ENDD") && !event.key.equals("WindowEnd")){
-                    printDetails(expectedEvents, event);
+//                    printDetails(expectedEvents, event);
                     assert(expectedEvents.contains(event));
                 }
 

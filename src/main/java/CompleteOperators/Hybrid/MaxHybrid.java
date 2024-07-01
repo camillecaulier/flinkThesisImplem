@@ -29,7 +29,7 @@ public class MaxHybrid extends CompleteOperator<EventBasic> {
     public MaxHybrid(String file, StreamExecutionEnvironment env, int parallelism, int splitParallelism, boolean isJavaSource, int sourceParallelism){
         super(file,
                 env,
-                isJavaSource, sourceParallelism);
+                isJavaSource, sourceParallelism,parallelism);
         this.parallelism = parallelism;
         this.splitParallelism = splitParallelism;
     }
@@ -59,7 +59,7 @@ public class MaxHybrid extends CompleteOperator<EventBasic> {
 
 
         DataStream<EventBasic> split = operatorSplitStream
-                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+                .partitionCustom(new RoundRobin(splitParallelism), value->value.key ) //any cast
                 .process(new MaxPartialFunctionFakeWindowEndEvents(1000)).setParallelism(splitParallelism).name("splitOperator");
 
 

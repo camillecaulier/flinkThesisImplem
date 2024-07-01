@@ -21,7 +21,7 @@ public class MaxRoundRobin extends CompleteOperator<EventBasic> {
     public MaxRoundRobin(String file, StreamExecutionEnvironment env , int parallelism, boolean isJavaSource,int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource,sourceParallelism);
+                isJavaSource,sourceParallelism,parallelism);
 
         this.parallelism = parallelism;
 
@@ -31,7 +31,7 @@ public class MaxRoundRobin extends CompleteOperator<EventBasic> {
         DataStream<EventBasic> mainStream = createSource();
 
         DataStream<EventBasic> operatorBasicStream = mainStream
-                .partitionCustom(new RoundRobin(), value->value.key )
+                .partitionCustom(new RoundRobin(this.parallelism), value->value.key )
                 .process(createPartialFunctions(true)).setParallelism(this.parallelism).name("roundRobinOperator");
 
         DataStream<EventBasic> reconciliation = operatorBasicStream

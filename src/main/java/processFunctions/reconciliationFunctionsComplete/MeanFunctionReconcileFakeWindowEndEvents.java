@@ -6,9 +6,11 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import static StringConstants.StringConstants.WINDOW_END;
 
 
 public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<EventBasic, EventBasic> {
@@ -44,7 +46,7 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
 
 
         if(eventMap.containsKey(event.value.timeStamp)){
-            if(event.key.equals("WindowEnd")){
+            if(event.key.equals(WINDOW_END)){
                 updateEndOfWindowCounter(out,event.value.timeStamp);
             }
             else{

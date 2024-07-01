@@ -93,7 +93,7 @@ public class testingStuffWindow {
 
         PartitionTransformation<Tuple2<String, Integer>> partitionTransformation = new PartitionTransformation<>(
                 operatorAggregateStream.getTransformation(),
-                new CustomStreamPartitioner(new RoundRobin(), operatorAggregateStream.getExecutionEnvironment().clean(MyKeySelector),10));
+                new CustomStreamPartitioner(new RoundRobin(10), operatorAggregateStream.getExecutionEnvironment().clean(MyKeySelector),10));
 
 //        new PartitionTransformation<>(
 //                operatorAggregateStream.getTransformation(),

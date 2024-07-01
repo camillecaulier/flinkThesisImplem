@@ -1,5 +1,6 @@
 package sourceGeneration;
 
+import StringConstants.StringConstants;
 import eventTypes.EventBasic;
 import eventTypes.Value;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -48,7 +49,7 @@ public class ZipfStringSource implements SourceFunction<EventBasic> {
         for (int i = 0; i < 20; i++) {
             Value value = new Value(i,(numWindow) * 1000L + 500);
             System.out.println(value);
-            sourceContext.collect(new EventBasic("ENDD", value.valueInt, value.timeStamp));
+            sourceContext.collect(new EventBasic(StringConstants.WINDOW_END, value.valueInt, value.timeStamp));
         }
 
         sourceContext.close();

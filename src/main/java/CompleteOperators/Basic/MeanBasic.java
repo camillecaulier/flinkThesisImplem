@@ -17,7 +17,7 @@ public class MeanBasic extends CompleteOperator<EventBasic> {
     public MeanBasic(String file, StreamExecutionEnvironment env,int parallelism,boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource,sourceParallelism);
+                isJavaSource,sourceParallelism,parallelism);
 
 
         this.parallelism = parallelism;

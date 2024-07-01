@@ -1,5 +1,6 @@
 package sourceGeneration;
 
+import StringConstants.StringConstants;
 import eventTypes.EventBasic;
 import eventTypes.Value;
 import org.apache.commons.math3.distribution.ZipfDistribution;
@@ -55,20 +56,19 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
             generateWindow(sourceContext, zipfDistribution, window * 1000L + 500);
         }
 
-        for(int j = 0 ; j < 2; j++){
-            for (int i = 0; i < 10; i++) {
-                Value value = new Value(i, (numWindow) *(j+1) *1000L + 500);
-                System.out.println(value);
-                sourceContext.collect(new EventBasic("ENDD", value.valueInt, value.timeStamp));
-            }
-        }
+
+//        for (int i = 0; i < parallelism; i++) {
+//            Value value = new Value(subtaskIndex, (numWindow+1) *1000L + 500);
+//            sourceContext.collect(new EventBasic(StringConstants.WINDOW_END, subtaskIndex, value.timeStamp));
+//        }
+
 
 
         sourceContext.close();
     }
 
     private void generateWindow(SourceContext<EventBasic> sourceContext, ZipfDistribution zipfDistribution, long timeStamp) throws InterruptedException {
-        List<EventBasic> batch = new ArrayList<>();
+
         for (int i = 0; i < windowSize/ sourceParallelism; i++) {
             String key = convertToLetter(zipfDistribution.sample());
             sourceContext.collect(new EventBasic(key, i, timeStamp));
@@ -95,10 +95,16 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
     }
 
     public void outputEndWindow(SourceContext<EventBasic> sourceContext, long timestamp) {
-        for(int i = 0; i < parallelism*2; i++){
+        for(int i = 0; i < parallelism; i++){
             sourceContext.collect(new EventBasic("WindowEnd", subtaskIndex, timestamp));
         }
     }
+
+//    public void endSourcing(SourceContext<EventBasic> sourceContext) {
+//        for(int i = 0; i < parallelism; i++){
+//            sourceContext.collect(new EventBasic("WindowEnd", subtaskIndex, 0));
+//        }
+//    }
 
     @Override
     public void cancel() {

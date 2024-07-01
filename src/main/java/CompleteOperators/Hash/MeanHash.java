@@ -16,7 +16,7 @@ public class MeanHash extends CompleteOperator<EventBasic> {
     public MeanHash(String file, StreamExecutionEnvironment env, int parallelism , boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource,sourceParallelism);
+                isJavaSource,sourceParallelism,parallelism);
 
         this.parallelism = parallelism;
 
@@ -26,7 +26,7 @@ public class MeanHash extends CompleteOperator<EventBasic> {
         DataStream<EventBasic> mainStream = createSource();
 
         DataStream<EventBasic> split = mainStream
-                .partitionCustom(new basicHash(), value->value.key ) //any cast
+                .partitionCustom(new basicHash(parallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(false)).setParallelism(parallelism).name("HashOperator");
 
         // there is no need for a reconciliation function in this case

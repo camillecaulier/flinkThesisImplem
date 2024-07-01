@@ -27,7 +27,7 @@ public class testingStuffTryingToGetTheMetricsWithJavaSource {
                 .setParallelism(1);
 
         DataStream<EventBasic> split = mainStream
-                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+                .partitionCustom(new RoundRobin(parallelism), value->value.key ) //any cast
                 .process(new MeanPartialFunctionFakeWindowEndEventsSingleSource(1000)).setParallelism(parallelism).name("roundRobinOperator");
 
 

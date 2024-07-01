@@ -39,6 +39,7 @@ public class Benchmark {
         int mainParallelism = args[0].isEmpty() ? 10 : Integer.parseInt(args[0]);
         int sourceParallelism = args[1].isEmpty() ? 3 : Integer.parseInt(args[1]);
         System.out.println("Main parallelism: " + mainParallelism);
+        System.out.println("Source parallelism: " + sourceParallelism);
 
         String fileName = args[2];
         System.out.println("Directory name: " + fileName);
@@ -47,11 +48,11 @@ public class Benchmark {
 
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
-                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism),
+//                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism),
                         new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3, sourceParallelism),
-                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism),
-                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism),
-                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism),
+//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism),
+//                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism),
+//                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism),
                         new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism)
 
 //                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),

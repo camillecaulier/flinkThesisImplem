@@ -1,6 +1,7 @@
 package eventTypes;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 public class Value {
 
@@ -27,6 +28,11 @@ public class Value {
                 "valueInt=" + valueInt +
                 ", timeStamp=" + timeStamp +
                 '}';
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(valueInt, timeStamp);
     }
 }
 

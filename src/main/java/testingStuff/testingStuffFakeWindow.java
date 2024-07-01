@@ -69,7 +69,7 @@ public class testingStuffFakeWindow {
 
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorAggregateStream
-                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+                .partitionCustom(new RoundRobin(1), value->value.key ) //any cast
                 .process(new MaxPartialFunctionFakeWindow(1000)).setParallelism(1);
 
 

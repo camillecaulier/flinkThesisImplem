@@ -29,7 +29,7 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
     public MeanHybrid(String file, StreamExecutionEnvironment env,int parallelism, int splitParallelism,boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource, sourceParallelism);
+                isJavaSource, sourceParallelism,parallelism);
 
         this.parallelism = parallelism;
         this.splitParallelism = splitParallelism;
@@ -53,7 +53,7 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
 //                .process(new MeanWindowProcessFunction()).setParallelism(parallelism).name("basicOperator");
 
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
-                .partitionCustom(new basicHash(), value->value.key ) //any cast
+                .partitionCustom(new basicHash(splitParallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(false)).setParallelism(splitParallelism).name("hashOperator");
 
 
@@ -64,7 +64,7 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
 
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorSplitStream
-                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+                .partitionCustom(new RoundRobin(splitParallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(true)).setParallelism(splitParallelism).name("splitOperator");
 
 

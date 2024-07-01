@@ -7,7 +7,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class cam_roundRobin implements Partitioner<String> {
+public class cam_roundRobin extends keyGroupingBasic{
     public int n;
     private ConcurrentHashMap<Integer, HashSet<String>> cardinality;
 
@@ -17,9 +17,7 @@ public class cam_roundRobin implements Partitioner<String> {
     int index = 0;
 
     public cam_roundRobin(int n_choices, int numPartitions) {
-//        if(numPartitions == 0){
-//            numPartitions = 2;
-//        }
+        super(numPartitions);
         //n being the number of choices eg two choices etc...
         this.parallelism = numPartitions;
         this.n = n_choices;
@@ -28,12 +26,7 @@ public class cam_roundRobin implements Partitioner<String> {
     }
 
     @Override
-    public int partition(String key, int numPartitions) {
-        if(Objects.equals(key, "ENDD")){
-            return roundRobin(numPartitions);
-        }
-
-
+    public int customPartition(String key, int numPartitions) {
         //special keygrouping for popular keys
         if(key.equals("A") || key.equals("B") || key.equals("C")){
             return roundRobin(numPartitions);

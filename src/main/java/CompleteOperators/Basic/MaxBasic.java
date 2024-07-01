@@ -20,7 +20,7 @@ public class MaxBasic extends CompleteOperator<EventBasic> {
     public MaxBasic(String file, StreamExecutionEnvironment env, int parallelism, boolean isJavaSource,int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource,sourceParallelism);
+                isJavaSource,sourceParallelism,parallelism);
         this.parallelism = parallelism;
     }
 

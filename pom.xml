@@ -61,6 +61,16 @@
             <artifactId>flink-core</artifactId>
             <version>1.18.1</version>
         </dependency>
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>3.6.0</version>  <!-- Check for the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>com.hazelcast</groupId>
+            <artifactId>hazelcast</artifactId>
+            <version>4.2</version> <!-- Use the latest version available -->
+        </dependency>
     </dependencies>
 
     <build>

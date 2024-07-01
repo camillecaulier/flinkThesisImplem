@@ -43,7 +43,7 @@ public class testingStuffMultiSource {
                 .setParallelism(source_parallelism);
 
         DataStream<EventBasic> split = mainStream
-                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+                .partitionCustom(new RoundRobin(parallelism), value->value.key ) //any cast
                 .process(new MeanPartialFunctionFakeWindowEndEventsMultiSource(1000, 10,2)).setParallelism(parallelism).name("roundRobinOperator");
 
 

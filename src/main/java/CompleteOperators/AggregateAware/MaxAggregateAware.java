@@ -19,10 +19,10 @@ public class MaxAggregateAware extends CompleteOperator<EventBasic> {
 
     int parallelism;
     int choices;
-    public MaxAggregateAware(String file, StreamExecutionEnvironment env , int splitParallelism , int choices, boolean isJavaSource, int sourceParallelism) {
+    public MaxAggregateAware(String file, StreamExecutionEnvironment env, int splitParallelism , int choices, boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource, sourceParallelism);
+                isJavaSource, sourceParallelism,splitParallelism*2);
 
 
         this.parallelism = splitParallelism;

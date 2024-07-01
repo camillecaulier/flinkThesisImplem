@@ -9,7 +9,7 @@ public class JavaSourceParameters {
     /**
      * java class that will take in a string e.g zipfDistribution,250000,2,1,2,0.7 to be used as an input for the java source
      * in the operators
-     *
+     *zipfDistribution,250000,2,1,2,0.7 => distribution, windowSize, numWindow, keySpaceSize, skewness
      **/
 
     public JavaSourceParameters(String distribution,int windowSize, int numWindow, int keySpaceSize,double skewness ){

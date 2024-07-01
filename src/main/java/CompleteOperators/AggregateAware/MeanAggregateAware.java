@@ -3,9 +3,12 @@ package CompleteOperators.AggregateAware;
 import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.cam_n;
+import keygrouping.cam_n_all_in_one_new;
+import keygrouping.cam_n_external;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import processFunctions.dummyNode;
 import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsSingleSource;
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
 
@@ -16,10 +19,10 @@ public class MeanAggregateAware extends CompleteOperator<EventBasic> {
 
     int parallelism;
     int choices;
-    public MeanAggregateAware(String file, StreamExecutionEnvironment env, int parallelism , int choices,boolean isJavaSource ,int sourceParallelism) {
+    public MeanAggregateAware(String file, StreamExecutionEnvironment env,int parallelism,  int choices,boolean isJavaSource ,int sourceParallelism ) {
         super(file,
                 env,
-                isJavaSource, sourceParallelism);
+                isJavaSource, sourceParallelism, parallelism);
 
         this.parallelism = parallelism;
         this.choices = choices;
@@ -29,9 +32,20 @@ public class MeanAggregateAware extends CompleteOperator<EventBasic> {
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = createSource();
 
+//        DataStream<EventBasic> dummyStep = mainStream.process(new dummyNode()).setParallelism(1).name("dummyNode");
+
+//        DataStream<EventBasic> split = mainStream
+//                .partitionCustom(new cam_n(choices ,parallelism), value->value.key ) //any cast
+//                .process(createPartialFunctions(false)).setParallelism(parallelism).name("aggregateAwareOperator");
+
+//        DataStream<EventBasic> split = mainStream
+//                .partitionCustom(new cam_n_external(choices ,parallelism), value->value.key ) //any cast
+//                .process(createPartialFunctions(false)).setParallelism(parallelism).name("aggregateAwareOperator");
+
         DataStream<EventBasic> split = mainStream
-                .partitionCustom(new cam_n(choices ,parallelism), value->value.key ) //any cast
+                .partitionCustom(new cam_n_all_in_one_new(choices ,parallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(false)).setParallelism(parallelism).name("aggregateAwareOperator");
+
 
 
 //        DataStream<EventBasic> reconciliation = split

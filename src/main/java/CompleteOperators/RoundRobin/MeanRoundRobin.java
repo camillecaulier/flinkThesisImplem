@@ -24,7 +24,7 @@ public class MeanRoundRobin extends CompleteOperator<EventBasic> {
     public MeanRoundRobin(String file, StreamExecutionEnvironment env, int parallelism, boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
-                isJavaSource, sourceParallelism);
+                isJavaSource, sourceParallelism,parallelism);
         this.filePath = file;
         this.env = env;
         this.watermarkStrategy = WatermarkStrategy
@@ -52,7 +52,7 @@ public class MeanRoundRobin extends CompleteOperator<EventBasic> {
 
 
         DataStream<EventBasic> split = mainStream
-                .partitionCustom(new RoundRobin(), value->value.key ) //any cast
+                .partitionCustom(new RoundRobin(parallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(true)).setParallelism(parallelism).name("roundRobinOperator");
 
 

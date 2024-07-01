@@ -1,5 +1,6 @@
 package sourceGeneration;
 
+import StringConstants.StringConstants;
 import eventTypes.EventBasic;
 import eventTypes.Value;
 import org.apache.commons.math3.random.RandomGenerator;
@@ -52,7 +53,7 @@ public class ZipfStringSourceRichProcessFunction extends RichParallelSourceFunct
             for (int i = 0; i < 10; i++) {
                 Value value = new Value(i, (numWindow) *(j+1) *1000L + 500);
                 System.out.println(value);
-                sourceContext.collect(new EventBasic("ENDD", value.valueInt, value.timeStamp));
+                sourceContext.collect(new EventBasic(StringConstants.WINDOW_END, value.valueInt, value.timeStamp));
             }
         }
 

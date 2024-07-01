@@ -64,7 +64,7 @@ public class testingStuffHybrid {
 
         DataStream<Tuple2<String, Integer>> split = operatorAggregateStream
 //                .keyBy(value-> value.f0)
-                .partitionCustom(new RoundRobin(), value->value.f0 )
+                .partitionCustom(new RoundRobin(10), value->value.f0 )
                 .process(new MaxPartialFunction());
 //                .setParallelism(10);
 

@@ -1,8 +1,9 @@
 package keygrouping;
 
+import java.io.Serializable;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class EndWindowPropagation {
+public class EndWindowPropagation implements Serializable {
 
     int parallelism;
     private final AtomicInteger counter = new AtomicInteger(-1);
@@ -10,7 +11,7 @@ public class EndWindowPropagation {
         this.parallelism = parallelism;
     }
 
-    public int endWindow(){
+    public int endWindowRouting(){
         int count = counter.incrementAndGet();
         return Math.abs(count % parallelism);
     }

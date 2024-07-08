@@ -44,7 +44,7 @@ public class MaxHybrid extends CompleteOperator<EventBasic> {
 
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
         SingleOutputStreamOperator<EventBasic> popularFilterStream = mainStream
-                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1).name("SwitchNodeEventBasic");
+                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag,splitParallelism+ parallelism)).setParallelism(1).name("SwitchNodeEventBasic");
 
         //basic operator
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)

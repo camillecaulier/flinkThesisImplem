@@ -42,21 +42,14 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
         OutputTag<EventBasic> operatorAggregateTag = new OutputTag<EventBasic>("operatorAggregate"){};
         OutputTag<EventBasic> operatorBasicTag = new OutputTag<EventBasic>("operatorBasic"){};
 
+
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
         SingleOutputStreamOperator<EventBasic> popularFilterStream = mainStream
-                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1).name("switchNodeEventBasic");
-
-        //basic operator
-//        DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
-//                .keyBy(event -> event.key)
-//                .window(TumblingEventTimeWindows.of(Time.milliseconds(1000)))
-//                .process(new MeanWindowProcessFunction()).setParallelism(parallelism).name("basicOperator");
+                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag, splitParallelism+ parallelism)).setParallelism(sourceParallelism).name("switchNodeEventBasic");
 
         DataStream<EventBasic> operatorBasicStream = popularFilterStream.getSideOutput(operatorBasicTag)
                 .partitionCustom(new basicHash(splitParallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(false)).setParallelism(splitParallelism).name("hashOperator");
-
-
 
 
         // time to do the thingy
@@ -67,13 +60,13 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
                 .partitionCustom(new RoundRobin(splitParallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(true)).setParallelism(splitParallelism).name("splitOperator");
 
-
+        split.print("split").setParallelism(1);
         DataStream<EventBasic> reconciliation = split
                 .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1).name("reconciliationOperator");
 
 
 
-//        reconciliation.print("reconciliation").setParallelism(1);
+        reconciliation.print("reconciliation").setParallelism(1);
 
 
         return reconciliation.union(operatorBasicStream);

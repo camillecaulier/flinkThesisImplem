@@ -17,7 +17,7 @@ public class RoundRobin extends keyGroupingBasic{
     public int customPartition(String key, int numPartitions) {
         index ++;
         index = index % numPartitions;
-        System.out.println("index: " + index + " numPartitions: " + numPartitions);
+//        System.out.println("index: " + index + " numPartitions: " + numPartitions);
         return index;
     }
 

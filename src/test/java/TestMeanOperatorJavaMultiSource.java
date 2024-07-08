@@ -2,10 +2,13 @@ import CompleteOperators.AggregateAware.MeanAggregateAware;
 import CompleteOperators.Basic.MeanBasic;
 import CompleteOperators.Cam_roundrobin_choices.MeanCAMRoundRobin;
 import CompleteOperators.CompleteOperator;
+import CompleteOperators.DChoices.MeanDChoices;
 import CompleteOperators.Hash.MeanHash;
 import CompleteOperators.HashRoundRobin.MeanHashRoundRobin;
 import CompleteOperators.Hybrid.MeanHybrid;
+import CompleteOperators.PKG.MeanPKG;
 import CompleteOperators.RoundRobin.MeanRoundRobin;
+import CompleteOperators.WChoices.MeanWChoices;
 import StringConstants.StringConstants.*;
 import benchmarks.JavaSourceParameters;
 import eventTypes.EventBasic;
@@ -35,9 +38,12 @@ public class TestMeanOperatorJavaMultiSource {
 //            MeanHybrid.class,
 //            MeanAggregateAware.class,
 //            MeanHash.class,
-            MeanRoundRobin.class,
+//            MeanRoundRobin.class,
 //            MeanCAMRoundRobin.class,
 //            MeanHashRoundRobin.class
+//            MeanDChoices.class,
+            MeanWChoices.class,
+//            MeanPKG.class
 
     };
 
@@ -57,7 +63,14 @@ public class TestMeanOperatorJavaMultiSource {
             return new MeanCAMRoundRobin(javaSourceParameters, env, parallelism, 3, isJavaSource, sourceParallelism);
         } else if (clazz == MeanHashRoundRobin.class){
             return new MeanHashRoundRobin(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
-        } else{
+        } else if (clazz == MeanDChoices.class){
+            return new MeanDChoices(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+        } else if (clazz == MeanWChoices.class){
+            return new MeanWChoices(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+        } else if (clazz == MeanPKG.class){
+            return new MeanPKG(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+        }
+        else{
             return null;
         }
     }
@@ -73,7 +86,7 @@ public class TestMeanOperatorJavaMultiSource {
         return sinkCollect.values;
     }
 //    @Test
-//    public void testSources() throws Exception{
+//    public void testSources() throws Exception{ commented to just save time in testing, just uncomment if you want to test the sources
 //        String[] sourceFiles = {
 //                "dataJavaMultiSourceTestData/zipf_distribution_40_2_2_1.4.csv",
 //                "dataJavaMultiSourceTestData/zipf_distribution_100_2_10_1.0E-15.csv",
@@ -281,7 +294,7 @@ public class TestMeanOperatorJavaMultiSource {
             for(EventBasic event : collectedEvents){
 
                 if(!event.key.equals(ENDD) && !event.key.equals(WINDOW_END)){
-                    TestUtilities.printDetails(expectedEvents, event);
+//                    TestUtilities.printDetails(expectedEvents, event);
                     assert(expectedEvents.contains(event));
                 }
 

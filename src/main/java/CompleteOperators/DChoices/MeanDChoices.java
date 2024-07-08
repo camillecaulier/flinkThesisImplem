@@ -1,28 +1,28 @@
-package CompleteOperators.RoundRobin;
+package CompleteOperators.DChoices;
 
 import CompleteOperators.CompleteOperator;
 import WatermarkGenerators.periodicWatermarkGenerator;
 import eventTypes.EventBasic;
+import keygrouping.DChoices;
 import keygrouping.RoundRobin;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.streaming.api.functions.ProcessFunction;
-import org.apache.flink.util.Collector;
 import processFunctions.dummyNode;
-import processFunctions.partialFunctions.MeanPartialFunctionFakeWindowEndEventsSingleSource;
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
 
-import java.time.Duration;
+public class MeanDChoices extends CompleteOperator<EventBasic> {
 
-public class MeanRoundRobin extends CompleteOperator<EventBasic> {
+    private String filePath;
+    private final StreamExecutionEnvironment env;
+    private final WatermarkStrategy<EventBasic> watermarkStrategy;
     int parallelism;
     boolean isJavaSource;
-    public MeanRoundRobin(String file, StreamExecutionEnvironment env, int parallelism, boolean isJavaSource, int sourceParallelism) {
+    public MeanDChoices(String file, StreamExecutionEnvironment env, int parallelism, boolean isJavaSource, int sourceParallelism) {
         super(file,
                 env,
                 isJavaSource, sourceParallelism,parallelism);
-
+        this.filePath = file;
         this.env = env;
         this.watermarkStrategy = WatermarkStrategy
                 .<EventBasic>forGenerator(ctx -> new periodicWatermarkGenerator(100))
@@ -38,11 +38,9 @@ public class MeanRoundRobin extends CompleteOperator<EventBasic> {
 //        DataStream<EventBasic> dummy = mainStream.process(new dummyNode()).setParallelism(1);
 
 
-
-
         DataStream<EventBasic> split = mainStream
-                .partitionCustom(new RoundRobin(parallelism), value->value.key ) //any cast
-                .process(createPartialFunctions(true)).setParallelism(parallelism).name("roundRobinOperator");
+                .partitionCustom(new DChoices(parallelism), value->value.key ) //any cast
+                .process(createPartialFunctions(true)).setParallelism(parallelism).name("DChoicesOperator");
 
 
 
@@ -53,3 +51,4 @@ public class MeanRoundRobin extends CompleteOperator<EventBasic> {
     }
 
 }
+

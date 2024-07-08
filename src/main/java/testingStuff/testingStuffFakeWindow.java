@@ -51,7 +51,7 @@ public class testingStuffFakeWindow {
 
         //needs to be a singleOuoptutStreamOperator if not you cannot get the side outputs
         SingleOutputStreamOperator<EventBasic> popularFilterStream = mainStream
-                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag)).setParallelism(1);
+                .process(new SwitchNodeEventBasic(operatorAggregateTag, operatorBasicTag,10)).setParallelism(1);
 
 
         //basic operator

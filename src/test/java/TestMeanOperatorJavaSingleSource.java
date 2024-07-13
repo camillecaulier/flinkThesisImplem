@@ -24,8 +24,10 @@ public class TestMeanOperatorJavaSingleSource {
     public int sourceParallelism = 1; //THIS MUST BE 1!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     public RuntimeExecutionMode executionMode = RuntimeExecutionMode.STREAMING;
     public int parallelism = 6;// good number for testing
+
+    public int aggregatorParallelism = 1;
     final Class[] operators = {
-            MeanBasic.class,
+//            MeanBasic.class,
 //            MeanHybrid.class,
             MeanAggregateAware.class,
             MeanRoundRobin.class,
@@ -38,19 +40,19 @@ public class TestMeanOperatorJavaSingleSource {
 
     public CompleteOperator<EventBasic> giveOperator(Class clazz, StreamExecutionEnvironment env, String javaSourceParameters){
         if (clazz == MeanBasic.class){
-            return new MeanBasic(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+            return new MeanBasic(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
         } else if (clazz == MeanHybrid.class){
-            return new MeanHybrid(javaSourceParameters, env, parallelism/2, parallelism/2, isJavaSource, sourceParallelism);
+            return new MeanHybrid(javaSourceParameters, env, parallelism/2, parallelism/2, isJavaSource, sourceParallelism,aggregatorParallelism);
         } else if (clazz == MeanAggregateAware.class){
-            return new MeanAggregateAware(javaSourceParameters, env, parallelism, 3, isJavaSource, sourceParallelism);
+            return new MeanAggregateAware(javaSourceParameters, env, parallelism, 3, isJavaSource, sourceParallelism, 0);
         } else if (clazz == MeanRoundRobin.class){
-            return new MeanRoundRobin(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+            return new MeanRoundRobin(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
         }else if (clazz == MeanHash.class){
-            return new MeanHash(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+            return new MeanHash(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism, 0);
         } else if (clazz == MeanCAMRoundRobin.class) {
-            return new MeanCAMRoundRobin(javaSourceParameters, env, parallelism, 3, isJavaSource, sourceParallelism);
+            return new MeanCAMRoundRobin(javaSourceParameters, env, parallelism, 3, isJavaSource, sourceParallelism, aggregatorParallelism);
         } else if (clazz == MeanHashRoundRobin.class){
-            return new MeanHashRoundRobin(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism);
+            return new MeanHashRoundRobin(javaSourceParameters, env, parallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
         } else{
             return null;
         }

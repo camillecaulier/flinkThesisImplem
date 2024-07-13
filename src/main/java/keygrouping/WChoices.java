@@ -37,7 +37,6 @@ public class WChoices extends keyGroupingBasic {
     @Override
     public int customPartition(String key, int numPartitions) {
 
-//        System.out.println("Key: "+key);
         StreamSummaryHelper ssHelper = new StreamSummaryHelper();
 
 
@@ -47,15 +46,8 @@ public class WChoices extends keyGroupingBasic {
         //  float value that represents a threshold for determining whether an item should be included in the returned list of top items
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,probability,totalItems);
 
-//        System.out.println("FreqList: "+freqList);
         if(freqList.containsKey(key)) {
-//            System.out.println("Key found in the stream summary");
-            int choice[] = new int[this.parallelism];
-            int count = 0;
-            while(count < this.parallelism) {
-                choice[count] = count;
-                count++;
-            }
+
             int selected = selectMinChoice(targetTaskStats);
 
             targetTaskStats[selected]++;
@@ -63,16 +55,12 @@ public class WChoices extends keyGroupingBasic {
             return selected;
 
         }else {
-
-//            System.out.println("Key not found in the stream summary");
-
             int firstChoice = (int) (FastMath.abs(h1.hashBytes(key.getBytes()).asLong()) % numPartitions);
             int secondChoice = (int) (FastMath.abs(h2.hashBytes(key.getBytes()).asLong()) % numPartitions);
             int selected = targetTaskStats[firstChoice]>targetTaskStats[secondChoice]?secondChoice:firstChoice;
             targetTaskStats[selected]++;
             totalItems++;
             return selected;
-
         }
 
     }

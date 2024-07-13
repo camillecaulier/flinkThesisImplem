@@ -1,6 +1,8 @@
 package sourceGeneration;
 
+import CustomWindowing.Windowing;
 import StringConstants.StringConstants;
+import static StringConstants.StringConstants.WINDOW_END;
 import eventTypes.EventBasic;
 import eventTypes.Value;
 import org.apache.commons.math3.distribution.ZipfDistribution;
@@ -9,6 +11,7 @@ import org.apache.commons.math3.random.Well19937c;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.source.RichParallelSourceFunction;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +29,8 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
 
     private int subtaskIndex;
 
+    Windowing windowing;
+
 
     public ZipfStringSourceRichProcessFunctionEndWindow(int windowSize, int numWindow, int keySpaceSize, double skewness, int sourceParallelism, int parallelism) {
         this.windowSize = windowSize;
@@ -36,6 +41,8 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
         this.sourceParallelism = sourceParallelism;
         this.parallelism = parallelism;
 
+
+
     }
 
     @Override
@@ -43,6 +50,7 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
         super.open(parameters);
         this.seed += getRuntimeContext().getIndexOfThisSubtask();
         this.subtaskIndex = getRuntimeContext().getIndexOfThisSubtask();
+        windowing = new Windowing(sourceParallelism, parallelism, getRuntimeContext().getIndexOfThisSubtask());
     }
 
     @Override
@@ -75,7 +83,8 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
 
         }
 
-        outputEndWindow(sourceContext, timeStamp);
+        windowing.outputEndWindow(sourceContext, timeStamp);
+//        outputEndWindow(sourceContext, timeStamp);
     }
 
     public static String convertToLetter(int number) {
@@ -94,17 +103,12 @@ public class ZipfStringSourceRichProcessFunctionEndWindow extends RichParallelSo
         return result.toString();
     }
 
-    public void outputEndWindow(SourceContext<EventBasic> sourceContext, long timestamp) {
-        for(int i = 0; i < parallelism; i++){
-            sourceContext.collect(new EventBasic("WindowEnd", subtaskIndex, timestamp));
-        }
-    }
-
-//    public void endSourcing(SourceContext<EventBasic> sourceContext) {
+//    public void outputEndWindow(SourceContext<EventBasic> sourceContext, long timestamp) {
 //        for(int i = 0; i < parallelism; i++){
-//            sourceContext.collect(new EventBasic("WindowEnd", subtaskIndex, 0));
+//            sourceContext.collect(new EventBasic(WINDOW_END, subtaskIndex, timestamp));
 //        }
 //    }
+
 
     @Override
     public void cancel() {

@@ -1,5 +1,6 @@
 package processFunctions.partialFunctions;
 
+import CustomWindowing.Windowing;
 import eventTypes.EventBasic;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -18,27 +19,32 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
 
     private HashMap<Long, ArrayList<EventBasic>> buffer = new HashMap<>();
 
-    private HashMap<Long, HashSet<Integer>> endWindowEventsReceived = new HashMap<>();
+//    private HashMap<Long, HashSet<Integer>> endWindowEventsReceived = new HashMap<>();
     int sourceParallelism;
 
-    public MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(int sourceParallelism) {
+    Windowing windowing;
+
+    int aggregatorParallelism;
+    public MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(int sourceParallelism, int aggregatorParallelism) {
 
         this.sourceParallelism = sourceParallelism;
+        this.aggregatorParallelism = aggregatorParallelism;
     }
 
 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
+        this.windowing = new Windowing(sourceParallelism, aggregatorParallelism, getRuntimeContext().getIndexOfThisSubtask());
 
     }
 
     @Override
     public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
 
-        if(Objects.equals(event.key, WINDOW_END)){
-            long timeWindow = checkAllEndWindowEventsReceived(event);
-            if(checkAllEndWindowEventsReceived(event) != -1){
+        if(windowing.isEndWindowEvent(event)){
+            long timeWindow = windowing.checkAllEndWindowEventsReceived(event);
+            if(timeWindow != -1){
                 outputValues(out,timeWindow);
             }
         }
@@ -61,7 +67,8 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
         for(String key : sumCount.keySet()){
             out.collect(sumCount.get(key));
         }
-        out.collect(new EventBasic(WINDOW_END, -1, timestamp));
+//        out.collect(new EventBasic(WINDOW_END, -1, timestamp)); // WILL NEED TO MODIFY HERE FOR MULTIPLE AGGREGATORS!!!!!
+        windowing.outputEndWindow(out, timestamp);
         buffer.remove(timestamp);
 
     }
@@ -88,22 +95,22 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
     }
 
 
-    public long checkAllEndWindowEventsReceived(EventBasic event) throws Exception{
-        if(!Objects.equals(event.key, "WindowEnd")){
-            throw  new IllegalArgumentException("Not a window end event");
-        }
-        if(endWindowEventsReceived.containsKey(event.value.timeStamp)){
-            HashSet<Integer> set = endWindowEventsReceived.get(event.value.timeStamp);
-            set.add(event.value.valueInt);
-            if(set.size() == sourceParallelism){
-                return event.value.timeStamp;
-            }
-        }else{
-            HashSet<Integer> set = new HashSet<>();
-            set.add(event.value.valueInt);
-            endWindowEventsReceived.put(event.value.timeStamp, set);
-        }
-        return -1;
-    }
+//    public long checkAllEndWindowEventsReceived(EventBasic event) throws Exception{
+//        if(!Objects.equals(event.key, WINDOW_END)){
+//            throw  new IllegalArgumentException("Not a window end event");
+//        }
+//        if(endWindowEventsReceived.containsKey(event.value.timeStamp)){
+//            HashSet<Integer> set = endWindowEventsReceived.get(event.value.timeStamp);
+//            set.add(event.value.valueInt);
+//            if(set.size() == sourceParallelism){
+//                return event.value.timeStamp;
+//            }
+//        }else{
+//            HashSet<Integer> set = new HashSet<>();
+//            set.add(event.value.valueInt);
+//            endWindowEventsReceived.put(event.value.timeStamp, set);
+//        }
+//        return -1;
+//    }
 }
 

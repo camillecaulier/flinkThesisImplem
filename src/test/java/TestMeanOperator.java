@@ -24,6 +24,7 @@ public class TestMeanOperator  {
     public int parallelism = 6;// good number for testing
     public boolean isJavaSource = false;
     public int sourceParallelism = 1;
+    public int aggregatorParallelism = 1;
     private CompleteOperator<EventBasic> operator;
     final Class[] operators = {
             MeanBasic.class,
@@ -36,13 +37,13 @@ public class TestMeanOperator  {
 
     public CompleteOperator<EventBasic> giveOperator(Class clazz, StreamExecutionEnvironment env, String csvFilePath){
         if (clazz == MeanBasic.class){
-            return new MeanBasic(csvFilePath, env, parallelism,isJavaSource, sourceParallelism);
+            return new MeanBasic(csvFilePath, env, parallelism,isJavaSource, sourceParallelism, aggregatorParallelism);
         } else if (clazz == MeanHybrid.class){
-            return new MeanHybrid(csvFilePath, env, parallelism/2, parallelism/2,isJavaSource, sourceParallelism);
+            return new MeanHybrid(csvFilePath, env, parallelism/2, parallelism/2,isJavaSource, sourceParallelism, aggregatorParallelism);
         } else if (clazz == MeanAggregateAware.class){
-            return new MeanAggregateAware(csvFilePath, env, parallelism, 3,isJavaSource, sourceParallelism);
+            return new MeanAggregateAware(csvFilePath, env, parallelism, 3,isJavaSource, sourceParallelism, aggregatorParallelism);
         } else if (clazz == MeanRoundRobin.class){
-            return new MeanRoundRobin(csvFilePath, env, parallelism,isJavaSource, sourceParallelism);
+            return new MeanRoundRobin(csvFilePath, env, parallelism,isJavaSource, sourceParallelism, aggregatorParallelism);
         }else{
             return null;
         }

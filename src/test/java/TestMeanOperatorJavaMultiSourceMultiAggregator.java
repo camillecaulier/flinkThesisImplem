@@ -11,36 +11,33 @@ import CompleteOperators.Hybrid.MeanHybrid;
 import CompleteOperators.PKG.MeanPKG;
 import CompleteOperators.RoundRobin.MeanRoundRobin;
 import CompleteOperators.WChoices.MeanWChoices;
-import StringConstants.StringConstants.*;
-import benchmarks.JavaSourceParameters;
 import eventTypes.EventBasic;
 import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.junit.Test;
 import sink.sinkCollect;
-import sourceGeneration.ZipfStringSourceRichProcessFunctionEndWindow;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import static StringConstants.StringConstants.ENDD;
 import static StringConstants.StringConstants.WINDOW_END;
 
 
-public class TestMeanOperatorJavaMultiSource {
+public class TestMeanOperatorJavaMultiSourceMultiAggregator {
 
     public boolean isJavaSource = true;
     public int sourceParallelism = 4; // THIS IS FIXED TO FOUR AND THE DATA INPUT IS FOR SORUCE PARALLELISM OF 4
     public RuntimeExecutionMode executionMode = RuntimeExecutionMode.STREAMING;
     public int parallelism = 6;
 
-    public int aggregatorParallelism = 1;
+    public int aggregatorParallelism = 2;
     final Class[] operators = {
             MeanHybrid.class,
 //            MeanAggregateAware.class,
-//            MeanHash.class,o
+//            MeanHash.class,
+//            MeanRoundRobin.class,
 //            MeanCAMRoundRobin.class,
 //            MeanHashRoundRobin.class,
 //            MeanDChoices.class,

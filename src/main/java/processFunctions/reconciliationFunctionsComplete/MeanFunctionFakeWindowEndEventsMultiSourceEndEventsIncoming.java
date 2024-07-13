@@ -1,5 +1,6 @@
 package processFunctions.reconciliationFunctionsComplete;
 
+import CustomWindowing.Windowing;
 import StringConstants.StringConstants;
 import eventTypes.EventBasic;
 import org.apache.flink.configuration.Configuration;
@@ -10,6 +11,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
+
+import static StringConstants.StringConstants.WINDOW_END;
 
 
 public class MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming extends ProcessFunction<EventBasic, EventBasic> {
@@ -22,26 +25,30 @@ public class MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming extends
 
     private HashMap<Long, ArrayList<EventBasic>> buffer = new HashMap<>();
 
-    private HashMap<Long, HashSet<Integer>> endWindowEventsReceived = new HashMap<>();
+//    private HashMap<Long, HashSet<Integer>> endWindowEventsReceived = new HashMap<>();
     int sourceParallelism;
+
+    Windowing windowing;
+
 
     public MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(int sourceParallelism) {
         this.sourceParallelism = sourceParallelism;
+
     }
 
 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-
+        this.windowing = new Windowing(sourceParallelism, 0, getRuntimeContext().getIndexOfThisSubtask());
     }
 
     @Override
     public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
 
-        if(Objects.equals(event.key, "WindowEnd")){
-            long timeWindow = checkAllEndWindowEventsReceived(event);
-            if(checkAllEndWindowEventsReceived(event) != -1){
+        if(windowing.isEndWindowEvent(event)){
+            long timeWindow = windowing.checkAllEndWindowEventsReceived(event);
+            if(timeWindow != -1){
                 outputValues(out,timeWindow);
             }
         }
@@ -92,25 +99,25 @@ public class MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming extends
     }
 
 
-    public long checkAllEndWindowEventsReceived(EventBasic event) throws Exception{
-        if(!Objects.equals(event.key, StringConstants.WINDOW_END)){
-            throw  new IllegalArgumentException("Not a window end event");
-        }
-        if(endWindowEventsReceived.containsKey(event.value.timeStamp)){
-            HashSet<Integer> set = endWindowEventsReceived.get(event.value.timeStamp);
-            set.add(event.value.valueInt);
-
-            if(set.size() == sourceParallelism){
-                System.out.println(Integer.toString(getRuntimeContext().getIndexOfThisSubtask()) +endWindowEventsReceived);
-//                endWindowEventsReceived.remove(event.value.timeStamp);
-                return event.value.timeStamp;
-            }
-        }else{
-            HashSet<Integer> set = new HashSet<>();
-            set.add(event.value.valueInt);
-            endWindowEventsReceived.put(event.value.timeStamp, set);
-        }
-        return -1;
-    }
+//    public long checkAllEndWindowEventsReceived(EventBasic event) throws Exception{
+//        if(!Objects.equals(event.key, WINDOW_END)){
+//            throw  new IllegalArgumentException("Not a window end event");
+//        }
+//        if(endWindowEventsReceived.containsKey(event.value.timeStamp)){
+//            HashSet<Integer> set = endWindowEventsReceived.get(event.value.timeStamp);
+//            set.add(event.value.valueInt);
+//
+//            if(set.size() == sourceParallelism){
+////                System.out.println(Integer.toString(getRuntimeContext().getIndexOfThisSubtask()) +endWindowEventsReceived);
+////                endWindowEventsReceived.remove(event.value.timeStamp);
+//                return event.value.timeStamp;
+//            }
+//        }else{
+//            HashSet<Integer> set = new HashSet<>();
+//            set.add(event.value.valueInt);
+//            endWindowEventsReceived.put(event.value.timeStamp, set);
+//        }
+//        return -1;
+//    }
 }
 

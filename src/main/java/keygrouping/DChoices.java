@@ -62,24 +62,24 @@ public class DChoices extends keyGroupingBasic {
         int Choice =2;
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,probability,totalItems);
         if(freqList.containsKey(key)) {
-            System.out.println("Key found in the stream summary");
+//            System.out.println("Key found in the stream summary");
             double pTop = ssHelper.getPTop(streamSummary,this.totalItems);
             PHeadCount pHead = ssHelper.getPHead(streamSummary,probability,this.totalItems);
             double pTail = 1-pHead.probability;
             double n = (double)this.serversNo;
-            double val1 = (n-1)/n;
+            double n_1_n = (n-1)/n;
             double d = FastMath.round(pTop*this.serversNo);
             double val2,val3,val4,sum1;
             double sum2,value1,value2,value3,value4;
             do{
                 //finding sum Head
-                val2 = FastMath.pow(val1, pHead.numberOfElements*d);
+                val2 = FastMath.pow(n_1_n, pHead.numberOfElements*d); // val2 = ((n-1)/n)^h*d
                 val3 = 1-val2;
-                val4 = FastMath.pow(val3, 2);
+                val4 = FastMath.pow(val3, 2); //val4 = (1-((n-1)/n)^h*d)^2
                 sum1 = pHead.probability + pTail*val4;
 
                 //finding sum1
-                value1 = FastMath.pow(val1, d);
+                value1 = FastMath.pow(n_1_n, d);
                 value2 = 1-value1;
                 value3 = FastMath.pow(value2, d);
                 value4 = FastMath.pow(value2, 2);
@@ -92,21 +92,20 @@ public class DChoices extends keyGroupingBasic {
             int counter = 0;
             int[] choice;
             byte[] b = key.toString().getBytes();
+
+            int selected;
             if(Choice < this.serversNo) {
                 choice = new int[Choice];
                 while(counter < Choice) {
                     choice[counter] =  FastMath.abs(hash[counter].hashBytes(b).asInt()%serversNo);
                     counter++;
                 }
+                selected = selectMinChoice(targetTaskStats,choice);
             }else {
-                choice = new int[this.serversNo];
-                while(counter < this.serversNo) {
-                    choice[counter] =  counter;
-                    counter++;
-                }
+                selected = selectMinChoice(targetTaskStats);
             }
 
-            int selected = selectMinChoice(targetTaskStats,choice);
+//            int selected = selectMinChoice(targetTaskStats,choice);
             targetTaskStats[selected]++;
             totalItems++;
             return selected;
@@ -129,6 +128,15 @@ public class DChoices extends keyGroupingBasic {
         for(int i = 0; i< choice.length; i++) {
             if (loadVector[choice[i]]<loadVector[index])
                 index = choice[i];
+        }
+        return index;
+    }
+
+    int selectMinChoice(long loadVector[]) {
+        int index =0;
+        for(int i = 0; i< this.parallelism; i++) {
+            if (loadVector[i]<loadVector[index])
+                index = i;
         }
         return index;
     }

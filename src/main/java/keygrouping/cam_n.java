@@ -95,7 +95,11 @@
 
 package keygrouping;
 
+import org.apache.commons.math3.util.FastMath;
+import org.apache.flink.shaded.guava31.com.google.common.hash.HashFunction;
+
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -103,18 +107,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class cam_n extends keyGroupingBasic {
     public int n;
-    private ConcurrentHashMap<Integer, Set<String>> cardinality;
-    private ConcurrentHashMap<Integer, AtomicInteger> tupleCount;
+    private HashMap<Integer, Set<String>> cardinality;
+    private HashMap<Integer, AtomicInteger> tupleCount;
     int parallelism;
 
+    public HashFunction[] hashFunctions;
     public cam_n(int n_choices, int numPartitions) {
         super(numPartitions);
+        if(n_choices > primeNumbers.length){
+            throw new IllegalArgumentException("Number of choices must be less than or equal to " + primeNumbers.length);
+        }
 
         // n being the number of choices eg two choices etc...
         this.parallelism = numPartitions;
         this.n = n_choices;
-        this.cardinality = new ConcurrentHashMap<>(numPartitions);
-        this.tupleCount = new ConcurrentHashMap<>(numPartitions);
+        this.cardinality = new HashMap<>(numPartitions);
+        this.tupleCount = new HashMap<>(numPartitions);
+        this.hashFunctions = createHashFunctions(n_choices);
     }
 
     @Override
@@ -129,7 +138,7 @@ public class cam_n extends keyGroupingBasic {
             Set<String> set = cardinality.get(partition);
             if (set.contains(key)) {
                 tupleCount.get(partition).incrementAndGet();
-                System.out.println("Choice: " + partition + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(partition).get() + " Cardinality: " + cardinality.get(partition).size());
+//                System.out.println("Choice: " + partition + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(partition).get() + " Cardinality: " + cardinality.get(partition).size());
 
                 return partition;
             }
@@ -159,17 +168,16 @@ public class cam_n extends keyGroupingBasic {
             set.add(key);
             tupleCount.get(choice).incrementAndGet();
         }
-        System.out.println("Choice: " + choice + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(choice).get() + " Cardinality: " + cardinality.get(choice).size());
+//        System.out.println("Choice: " + choice + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(choice).get() + " Cardinality: " + cardinality.get(choice).size());
 
         return choice;
     }
 
     public int[] generateHashes(String input) {
         int[] hashes = new int[n];
-        int baseHash = input.hashCode();
 
         for (int i = 0; i < n; i++) {
-            hashes[i] = Math.abs((baseHash + i * 31) % this.parallelism); // Using a linear probing approach 31 helps distribute well
+            hashes[i] = (int) (FastMath.abs(hashFunctions[i].hashBytes(input.getBytes()).asLong()) % this.parallelism); // Using a linear probing approach 31 helps distribute well
         }
 
         return hashes;

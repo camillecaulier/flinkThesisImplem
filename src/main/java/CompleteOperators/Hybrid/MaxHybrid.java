@@ -3,6 +3,7 @@ package CompleteOperators.Hybrid;
 import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
+import keygrouping.keyGroupingBasic;
 import org.apache.flink.api.java.io.TextInputFormat;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
@@ -26,10 +27,10 @@ public class MaxHybrid extends CompleteOperator<EventBasic> {
 
     int splitParallelism;
 
-    public MaxHybrid(String file, StreamExecutionEnvironment env, int parallelism, int splitParallelism, boolean isJavaSource, int sourceParallelism){
+    public MaxHybrid(String file, StreamExecutionEnvironment env, int parallelism, int splitParallelism, boolean isJavaSource, int sourceParallelism, int aggregatorParallelism){
         super(file,
                 env,
-                isJavaSource, sourceParallelism,parallelism);
+                isJavaSource, sourceParallelism,parallelism, aggregatorParallelism);
         this.parallelism = parallelism;
         this.splitParallelism = splitParallelism;
     }
@@ -75,5 +76,10 @@ public class MaxHybrid extends CompleteOperator<EventBasic> {
         return reconciliation.union(operatorBasicStream);
 
 
+    }
+
+    @Override
+    public keyGroupingBasic getKeyGrouping() {
+        return null;
     }
 }

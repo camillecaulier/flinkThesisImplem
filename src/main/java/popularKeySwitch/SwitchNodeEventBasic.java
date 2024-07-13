@@ -26,33 +26,41 @@ public class SwitchNodeEventBasic extends ProcessFunction<EventBasic, EventBasic
     private HashMap<Long, Integer> endWindowCount = new HashMap<>();
 
     @Override
-    public void processElement(EventBasic value, Context ctx, Collector<EventBasic> out) throws Exception {
+    public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
 
-        if( value.key.equals(WINDOW_END)){
+//        if( value.key.equals(WINDOW_END)){
+//
+//            long timestamp = value.value.timeStamp;
+//            if(endWindowCount.containsKey(timestamp)){
+//                endWindowCount.put(timestamp, endWindowCount.get(timestamp) + 1);
+//            } else {
+//                endWindowCount.put(timestamp, 1);
+//            }
+//
+//
+////            System.out.println("endWindowCount: " + endWindowCount.get(timestamp) + " timeWindow: " + timestamp + " parallelism: " + parallelism);
+//            if(endWindowCount.get(timestamp) <= parallelism/2){
+//                ctx.output(hotKeyOperatorTag, value);
+//            }else{
+//
+//                ctx.output(operator2OutputTag, value);
+//            }
+//        }
 
-            long timestamp = value.value.timeStamp;
-            if(endWindowCount.containsKey(timestamp)){
-                endWindowCount.put(timestamp, endWindowCount.get(timestamp) + 1);
+        if(event.key.equals(WINDOW_END)){
+            if(event.value.valueInt % 2 == 0){
+                ctx.output(hotKeyOperatorTag, event);
             } else {
-                endWindowCount.put(timestamp, 1);
-            }
-
-
-//            System.out.println("endWindowCount: " + endWindowCount.get(timestamp) + " timeWindow: " + timestamp + " parallelism: " + parallelism);
-            if(endWindowCount.get(timestamp) <= parallelism/2){
-                ctx.output(hotKeyOperatorTag, value);
-            }else{
-
-                ctx.output(operator2OutputTag, value);
+                ctx.output(operator2OutputTag, event);
             }
         }
 //        is popular()
-        if (value.key.equals('A') || value.key.equals('A') || value.key.equals('C')){
+        if (event.key.equals('A') || event.key.equals('A') || event.key.equals('C')){
 
-            ctx.output(hotKeyOperatorTag, value); //send to operator 1
+            ctx.output(hotKeyOperatorTag, event); //send to operator 1
 
         } else {
-            ctx.output(operator2OutputTag, value); //send to operator 2
+            ctx.output(operator2OutputTag, event); //send to operator 2
         }
 
     }

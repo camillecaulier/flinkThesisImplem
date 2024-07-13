@@ -5,6 +5,7 @@ import CompleteOperators.CompleteOperator;
 import eventTypes.EventBasic;
 import keygrouping.RoundRobin;
 import keygrouping.basicHash;
+import keygrouping.keyGroupingBasic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
@@ -25,16 +26,19 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
     int parallelism;
 
     int splitParallelism;
+    int aggregatorParallelism;
 
-    public MeanHybrid(String file, StreamExecutionEnvironment env,int parallelism, int splitParallelism,boolean isJavaSource, int sourceParallelism) {
+    public MeanHybrid(String file, StreamExecutionEnvironment env,int parallelism, int splitParallelism,boolean isJavaSource, int sourceParallelism,int aggregatorParallelism) {
         super(file,
                 env,
-                isJavaSource, sourceParallelism,parallelism);
+                isJavaSource, sourceParallelism,parallelism,aggregatorParallelism);
 
         this.parallelism = parallelism;
         this.splitParallelism = splitParallelism;
+        this.aggregatorParallelism = (int) Math.ceil( (double) aggregatorParallelism/2.0);
     }
 
+    @Override
     public DataStream<EventBasic> execute(){
         DataStream<EventBasic> mainStream = createSource();
 
@@ -72,5 +76,9 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
         return reconciliation.union(operatorBasicStream);
 
 
+    }
+
+    public keyGroupingBasic getKeyGrouping() {
+        return new RoundRobin(parallelism);
     }
 }

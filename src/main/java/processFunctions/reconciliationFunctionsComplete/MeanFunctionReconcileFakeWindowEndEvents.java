@@ -1,5 +1,6 @@
 package processFunctions.reconciliationFunctionsComplete;
 
+import CustomWindowing.Windowing;
 import eventTypes.EventBasic;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.configuration.Configuration;
@@ -19,15 +20,16 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
 
     HashMap<Long, List<EventBasic>> eventMap;
 
-    HashMap<Long, Integer> endOfWindowCounter;
+//    HashMap<Long, Integer> endOfWindowCounter;
 
 
+    Windowing windowing;
 
 
+    public MeanFunctionReconcileFakeWindowEndEvents(long windowTime , int partialFunctionParallelism) {
+        this.parallelism = partialFunctionParallelism ;
+//        endOfWindowCounter = new HashMap<>();
 
-    public MeanFunctionReconcileFakeWindowEndEvents(long windowTime , int parallelism) {
-        this.parallelism = parallelism ;
-        endOfWindowCounter = new HashMap<>();
     }
 
 
@@ -35,6 +37,7 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
         eventMap = new HashMap<>();
+        this.windowing = new Windowing(parallelism, 0, getRuntimeContext().getIndexOfThisSubtask());
 
     }
 
@@ -45,31 +48,36 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
 //        System.out.println("subtaskIndex = " + subtaskIndex + " key = " + key + " event.value.timeStamp = " + event.value.timeStamp +  " startWindowTime = " + startWindowTime + " endWindowTime = " + endWindowTime + " currentTime = " + currentTime);
 
 
-        if(eventMap.containsKey(event.value.timeStamp)){
-            if(event.key.equals(WINDOW_END)){
-                updateEndOfWindowCounter(out,event.value.timeStamp);
-            }
-            else{
-                eventMap.get(event.value.timeStamp).add(event);
+
+        if(windowing.isEndWindowEvent(event)){
+//                updateEndOfWindowCounter(out,event.value.timeStamp);
+            long timeWindow = windowing.checkAllEndWindowEventsReceived(event);
+            if(timeWindow != -1){
+                outputValues(out,timeWindow);
             }
         }else{
-            eventMap.put(event.value.timeStamp, new ArrayList<EventBasic>());
-            eventMap.get(event.value.timeStamp).add(event);
-        }
+            if(eventMap.containsKey(event.value.timeStamp)){
+                    eventMap.get(event.value.timeStamp).add(event);
 
-    }
-
-    public void updateEndOfWindowCounter(Collector<EventBasic> out,long timeStamp){
-        if(endOfWindowCounter.containsKey(timeStamp)){
-            endOfWindowCounter.put(timeStamp, endOfWindowCounter.get(timeStamp) + 1);
-            if(endOfWindowCounter.get(timeStamp) == parallelism ){
-                outputValues(out, timeStamp);
+            }else{
+                eventMap.put(event.value.timeStamp, new ArrayList<EventBasic>());
+                eventMap.get(event.value.timeStamp).add(event);
             }
         }
-        else{
-            endOfWindowCounter.put(timeStamp, 1);
-        }
+
     }
+
+//    public void updateEndOfWindowCounter(Collector<EventBasic> out,long timeStamp){
+//        if(endOfWindowCounter.containsKey(timeStamp)){
+//            endOfWindowCounter.put(timeStamp, endOfWindowCounter.get(timeStamp) + 1);
+//            if(endOfWindowCounter.get(timeStamp) == parallelism ){
+//                outputValues(out, timeStamp);
+//            }
+//        }
+//        else{
+//            endOfWindowCounter.put(timeStamp, 1);
+//        }
+//    }
 
     public void outputValues(Collector<EventBasic> out, long timeStamp) {
         HashMap<String,Integer> meanMap = getMeanValues(timeStamp);

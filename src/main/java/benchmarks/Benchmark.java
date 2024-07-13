@@ -35,25 +35,27 @@ public class Benchmark {
         System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
         printClassLocation(Benchmark.class);
-
-        int mainParallelism = args[0].isEmpty() ? 10 : Integer.parseInt(args[0]);
-        int sourceParallelism = args[1].isEmpty() ? 3 : Integer.parseInt(args[1]);
-        System.out.println("Main parallelism: " + mainParallelism);
+        int sourceParallelism = args[0].isEmpty() ? 3 : Integer.parseInt(args[1]);
+        int mainParallelism = args[1].isEmpty() ? 10 : Integer.parseInt(args[0]);
+        int aggregatorParallelism = args[2].isEmpty() ? 1 : Integer.parseInt(args[2]);
         System.out.println("Source parallelism: " + sourceParallelism);
+        System.out.println("Main parallelism: " + mainParallelism);
+        System.out.println("Aggregator parallelism: " + aggregatorParallelism);
 
-        String fileName = args[2];
+
+        String fileName = args[3];
         System.out.println("Directory name: " + fileName);
 
-        boolean isJavaSource = args[3].equals("javaSource");
+        boolean isJavaSource = args[4].equals("javaSource");
 
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
-//                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism),
-                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3, sourceParallelism),
-//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism),
-//                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism),
-//                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism),
-                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism)
+//                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism)
 
 //                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
 //                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
@@ -109,30 +111,31 @@ public class Benchmark {
         int hybridParallelism = benchmarkParameters.HybridParallelism;
         int choices = benchmarkParameters.Choices;
         int sourceParallelism = benchmarkParameters.sourceParallelism;
+        int aggregatorParallelism = benchmarkParameters.aggregatorParallelism;
 
         switch (nameClass) {
             case "MeanBasic":
-                return new MeanBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
+                return new MeanBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanAggregateAware":
-                return new MeanAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism);
+                return new MeanAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanRoundRobin":
-                return new MeanRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
+                return new MeanRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanHybrid":
-                return new MeanHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism);
+                return new MeanHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanCAMRoundRobin":
-                return new MeanCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism);
+                return new MeanCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanHash":
-                return new MeanHash(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
+                return new MeanHash(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
 
 
-            case "MaxBasic":
-                return new MaxBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism );
-            case "MaxHybrid":
-                return new MaxHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism );
-            case "MaxAggregateAware":
-                return new MaxAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism   );
-            case "MaxRoundRobin":
-                return new MaxRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism);
+//            case "MaxBasic":
+//                return new MaxBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism , aggregatorParallelism);
+//            case "MaxHybrid":
+//                return new MaxHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism , aggregatorParallelism);
+//            case "MaxAggregateAware":
+//                return new MaxAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism  , aggregatorParallelism );
+//            case "MaxRoundRobin":
+//                return new MaxRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             default: // add other lock classes here
                 System.err.println("Invalid class name " + nameClass);
                 System.exit(-1);

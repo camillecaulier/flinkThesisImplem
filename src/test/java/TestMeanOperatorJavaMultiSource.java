@@ -39,15 +39,15 @@ public class TestMeanOperatorJavaMultiSource {
     public int aggregatorParallelism = 1;
     final Class[] operators = {
             MeanHybrid.class,
-//            MeanAggregateAware.class,
-//            MeanHash.class,o
-//            MeanCAMRoundRobin.class,
-//            MeanHashRoundRobin.class,
-//            MeanDChoices.class,
-//            MeanWChoices.class,
-//            MeanPKG.class,
-//            MeanTopKHashRoundRobin.class,
-//            MeanTopKCAMRoundRobin.class
+            MeanAggregateAware.class,
+            MeanHash.class,
+            MeanCAMRoundRobin.class,
+            MeanHashRoundRobin.class,
+            MeanDChoices.class,
+            MeanWChoices.class,
+            MeanPKG.class,
+            MeanTopKHashRoundRobin.class,
+            MeanTopKCAMRoundRobin.class
 
     };
 

@@ -7,16 +7,14 @@ import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import static StringConstants.StringConstants.WINDOW_END;
 
 
 public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<EventBasic, EventBasic> {
 
-    int parallelism;
+    int partialFunctionParallelism;
 
     HashMap<Long, List<EventBasic>> eventMap;
 
@@ -27,7 +25,7 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
 
 
     public MeanFunctionReconcileFakeWindowEndEvents(long windowTime , int partialFunctionParallelism) {
-        this.parallelism = partialFunctionParallelism ;
+        this.partialFunctionParallelism = partialFunctionParallelism ;
 //        endOfWindowCounter = new HashMap<>();
 
     }
@@ -37,7 +35,7 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
         eventMap = new HashMap<>();
-        this.windowing = new Windowing(parallelism, 0, getRuntimeContext().getIndexOfThisSubtask());
+        this.windowing = new Windowing(partialFunctionParallelism, 0, getRuntimeContext().getIndexOfThisSubtask());
 
     }
 
@@ -90,6 +88,9 @@ public class MeanFunctionReconcileFakeWindowEndEvents extends ProcessFunction<Ev
 
     public HashMap<String, Integer> getMeanValues(long timeStamp){
         HashMap<String,Tuple2<Integer,Integer>> sumCountMap = new HashMap<>();
+        if (!eventMap.containsKey(timeStamp)){
+            return new HashMap<>();
+        }
         for (EventBasic event : eventMap.get(timeStamp)) {
             if(sumCountMap.containsKey(event.key)){
                 Tuple2<Integer,Integer> sumCountPair = sumCountMap.get(event.key);

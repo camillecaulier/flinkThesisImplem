@@ -131,6 +131,7 @@ public abstract class CompleteOperator<T> {
         if(needReconciliation){
             if (sourceParallelism > 1){
 //                return new MeanPartialFunctionFakeWindowEndEventsMultiSource(1000, outOfOrderness,1);
+                //the latest
                 return new MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(sourceParallelism, aggregatorParallelism);
             }
             else{
@@ -140,6 +141,7 @@ public abstract class CompleteOperator<T> {
             if(sourceParallelism > 1){
                 JavaSourceParameters parameters = getJavaSourceParameters(file);
 //                return new MeanFunctionFakeWindowMultiSource(1000, outOfOrderness,parameters.numWindow);
+//                System.out.println("hello");
                 return new MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(sourceParallelism);
             }
 

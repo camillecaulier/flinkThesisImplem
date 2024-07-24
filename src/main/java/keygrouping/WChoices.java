@@ -42,7 +42,7 @@ public class WChoices extends keyGroupingBasic {
 
         streamSummary.offer(key);
 //        float probability = 2/(float)(this.parallelism*10); // 2/(10*5 workers)
-        float probability = 2/(float)(10); // 2/(10*5 workers)
+        float probability = 1/(float)(parallelism); // 2/(2*5 workers)
         //  float value that represents a threshold for determining whether an item should be included in the returned list of top items
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,probability,totalItems);
 

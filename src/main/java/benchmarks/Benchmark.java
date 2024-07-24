@@ -2,7 +2,12 @@ package benchmarks;
 
 import CompleteOperators.AggregateAware.MaxAggregateAware;
 import CompleteOperators.Cam_roundrobin_choices.MeanCAMRoundRobin;
+import CompleteOperators.Cam_roundrobin_choices.MeanTopKCAMRoundRobin;
+import CompleteOperators.DChoices.MeanDChoices;
 import CompleteOperators.Hash.MeanHash;
+import CompleteOperators.HashRoundRobin.MeanHashRoundRobin;
+import CompleteOperators.HashRoundRobin.MeanTopKHashRoundRobin;
+import CompleteOperators.PKG.MeanPKG;
 import CompleteOperators.RoundRobin.MaxRoundRobin;
 import CompleteOperators.AggregateAware.MeanAggregateAware;
 import CompleteOperators.RoundRobin.MeanRoundRobin;
@@ -11,6 +16,7 @@ import CompleteOperators.Basic.MeanBasic;
 import CompleteOperators.CompleteOperator;
 import CompleteOperators.Hybrid.MaxHybrid;
 import CompleteOperators.Hybrid.MeanHybrid;
+import CompleteOperators.WChoices.MeanWChoices;
 import eventTypes.EventBasic;
 import org.apache.flink.api.common.RuntimeExecutionMode;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -35,8 +41,8 @@ public class Benchmark {
         System.out.println("Current working directory: " + System.getProperty("user.dir"));
 
         printClassLocation(Benchmark.class);
-        int sourceParallelism = args[0].isEmpty() ? 3 : Integer.parseInt(args[1]);
-        int mainParallelism = args[1].isEmpty() ? 10 : Integer.parseInt(args[0]);
+        int sourceParallelism = args[0].isEmpty() ? 3 : Integer.parseInt(args[0]);
+        int mainParallelism = args[1].isEmpty() ? 10 : Integer.parseInt(args[1]);
         int aggregatorParallelism = args[2].isEmpty() ? 1 : Integer.parseInt(args[2]);
         System.out.println("Source parallelism: " + sourceParallelism);
         System.out.println("Main parallelism: " + mainParallelism);
@@ -51,11 +57,18 @@ public class Benchmark {
         List<BenchmarkParameters> benchmarkParameters = new ArrayList<>(
                 Arrays.asList(
 //                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+
+                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism),
                         new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism)
+                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, 0),
+                        new BenchmarkParameters("MeanHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanTopKCAMRoundRobin", mainParallelism, 3, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanTopKHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanPKG", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanDChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanWChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism)
 
 //                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
 //                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
@@ -83,13 +96,16 @@ public class Benchmark {
         for (BenchmarkParameters benchmarkParameter : benchmarkParameters) {
 
             for (String source : sources) {
-                System.out.println("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + source);
+                System.out.println("Benchmarking operator: " + benchmarkParameter.operator
+                        +" sourceParallelism: "+ String.valueOf(sourceParallelism)+ " mainParallelism: " + String.valueOf(mainParallelism) +" aggregatorParallelism: " +String.valueOf(aggregatorParallelism)
+                        + " with file: " + source);
                 CompleteOperator<EventBasic> operator = createOperatorFromParameters(benchmarkParameter, source, env, isJavaSource);
                 DataStream<EventBasic> output = operator.execute();
 //                output.addSink(new basicSinkFunction());
                 long startTime = System.nanoTime();
 
-                env.execute("Benchmarking operator: " + benchmarkParameter.operator + " with file: " + source);
+                env.execute("Benchmarking operator: " + benchmarkParameter.operator +" sourceParallelism: "+ String.valueOf(sourceParallelism)+ " mainParallelism: " + String.valueOf(mainParallelism) +" aggregatorParallelism: " +String.valueOf(aggregatorParallelism)
+                        + " with file: " + source);
                 long endTime = System.nanoTime();
                 long duration = (endTime - startTime);
                 printMetrics(benchmarkParameter, source, duration);
@@ -125,7 +141,20 @@ public class Benchmark {
             case "MeanCAMRoundRobin":
                 return new MeanCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanHash":
-                return new MeanHash(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
+                return new MeanHash(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, 0);
+            case "MeanHashRoundRobin": //
+                return new MeanHashRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanTopKCAMRoundRobin":
+                return new MeanTopKCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanTopKHashRoundRobin":
+                return new MeanTopKHashRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanPKG":
+                return new MeanPKG(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanDChoices":
+                return new MeanDChoices(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanWChoices":
+                return new MeanWChoices(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
+
 
 
 //            case "MaxBasic":

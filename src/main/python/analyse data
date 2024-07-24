@@ -1,0 +1,30 @@
+{'job name': 'Benchmarking operator: MeanRoundRobin with file: zipf,100000,100,2,2.1', 'job_id': '1054009ce68cbc811130504b591e8db5', 'vertex names': {'Source: source': 'bc764cd8ddf7a0cff126f51c16239658', 'PartialFunctionOperator': '0a448493b4782967b150582570326227', 'aggregator': 'ea632d67b7d595e5b851708ae9ad79d6'},
+
+'Source: source': {'name': 'Source: source', 'id': 'bc764cd8ddf7a0cff126f51c16239658', 'subtask_ids': [0, 1, 2], 'no subtask': 3,
+'accumulate': {0: 0, 1: 0, 2: 0},
+'soft': {0: 0, 1: 0, 2: 0},
+'hard': {0: 0, 1: 0, 2: 0},
+'numBytesOutTotal': {0: 66846720, 1: 66519040, 2: 72417280},
+'numBytesOutPerSecond': {0: 0.0, 1: 0.0, 2: 0.0},
+'numRecordsOutTotal': {0: 1779401, 1: 1773595, 2: 1928889},
+'numRecordsOutPerSecond': {0: 0.0, 1: 0.0, 2: 0.0},
+'numBytesInTotal': {0: 0, 1: 0, 2: 0},
+'numBytesInPerSecond': {0: 0.0, 1: 0.0, 2: 0.0}, 'numRecordsInTotal': {0: 0, 1: 0, 2: 0}, 'numRecordsInPerSecond': {0: 0.0, 1: 0.0, 2: 0.0}},
+
+
+PartialFunctionOperator': {'name': 'PartialFunctionOperator', 'id': '0a448493b4782967b150582570326227',
+'subtask_ids': [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], 'no subtask': 10,
+'accumulate': {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0},
+'soft': {0: 0, 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0}, 'hard': {0: 0,
+ 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0},
+ 'numBytesOutTotal': {0: 196608, 1: 196608, 2: 196608, 3: 196608, 4: 196608, 5: 196608, 6: 196608, 7: 196608, 8: 196608, 9: 196608},
+ 'numBytesOutPerSecond': {0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0},
+ 'numRecordsOutTotal': {0
+: 5651, 1: 5605, 2: 5693, 3: 5618, 4: 5586, 5: 5666, 6: 5727, 7: 5636, 8: 5603, 9: 5697},
+'numRecordsOutPerSecond': {0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0},
+'numBytesInTotal': {0: 20578316, 1: 20578316, 2: 20578316, 3: 20578316, 4: 20578316, 5: 20578316, 6: 20578316, 7: 205783
+16, 8: 20578316, 9: 20578316},
+'numBytesInPerSecond': {0: 0.0, 1: 0.0, 2: 0.0, 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0},
+'numRecordsInTotal': {0: 547207, 1: 546899, 2: 546524, 3: 547207, 4: 547207, 5: 547207, 6: 546855, 7: 547207, 8: 546555, 9: 547207}, 'numRecordsInPerSecond': {0: 0.0, 1: 0.0, 2: 0.0,
+ 3: 0.0, 4: 0.0, 5: 0.0, 6: 0.0, 7: 0.0, 8: 0.0, 9: 0.0}},
+ 'aggregator': {'name': 'aggregator', 'id': 'ea632d67b7d595e5b851708ae9ad79d6', 'subtask_ids': [0], 'no subtask': 1, 'accumulate': {0: 0}, 'soft': {0: 0}, 'hard': {0: 0}, 'numBytesOutTotal': {0: 0}, 'numBytesOutPerSecond': {0: 0.0}, 'numRecordsOutTotal': {0: 0}, 'numRecordsOutPerSecond': {0: 0.0}, 'numBytesInTotal': {0: 2115416}, 'numBytesInPerSecond': {0: 0.0}, 'numRecordsInTotal': {0: 54345}, 'numRecordsInPerSecond': {0: 0.0}}}

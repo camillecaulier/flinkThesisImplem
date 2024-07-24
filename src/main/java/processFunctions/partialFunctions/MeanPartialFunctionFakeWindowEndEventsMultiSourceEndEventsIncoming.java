@@ -35,7 +35,7 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
     @Override
     public void open(Configuration parameters) throws Exception {
         super.open(parameters);
-        this.windowing = new Windowing(sourceParallelism, aggregatorParallelism, getRuntimeContext().getIndexOfThisSubtask());
+        this.windowing = new Windowing(sourceParallelism, aggregatorParallelism, getRuntimeContext().getIndexOfThisSubtask(), "partial function");
 
     }
 
@@ -43,7 +43,9 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
     public void processElement(EventBasic event, Context ctx, Collector<EventBasic> out) throws Exception {
 
         if(windowing.isEndWindowEvent(event)){
+
             long timeWindow = windowing.checkAllEndWindowEventsReceived(event);
+//            System.out.println(windowing.endWindowEventsReceived);
             if(timeWindow != -1){
                 outputValues(out,timeWindow);
             }
@@ -62,6 +64,7 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
     public void outputValues(Collector<EventBasic> out, long timestamp) {
 
        //if is last element, output all
+
         HashMap<String, EventBasic> sumCount = getProcessedOutput(timestamp);
 
         for(String key : sumCount.keySet()){
@@ -77,7 +80,7 @@ public class MeanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming 
         HashMap<String , EventBasic> sumCount = new HashMap<>();
         if (!buffer.containsKey(timestamp)){
 
-            System.out.println("buffer does not contain timestamp");
+            System.out.println("buffer does not contain timestamp meanPartialFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming");
             System.out.println(buffer);
             return sumCount;
 

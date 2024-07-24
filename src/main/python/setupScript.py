@@ -2,7 +2,7 @@ import os
 import subprocess
 
 
-def configure_flink(flink_dir, task_slots=5 , workers_n = 3):
+def configure_flink(flink_dir, task_slots= 8, workers_n = 8):
     # Path to the Flink configuration file
     conf_path = os.path.join(flink_dir, 'conf', 'flink-conf.yaml')
     workers_path = os.path.join(flink_dir, 'conf', 'workers')
@@ -48,9 +48,8 @@ def extract_tar_files(pattern):
 
 extract_tar_files('flink-*.tgz')
 def download_flink():
-    # Check if Flink package is already downloaded
+    #Check if Flink package is already downloaded
     if not os.path.exists("flink-1.18.1-bin-scala_2.12.tgz"):
-        # Download Flink using curl via subprocess
         subprocess.run(['curl', '-O', '--insecure', 'https://dlcdn.apache.org/flink/flink-1.18.1/flink-1.18.1-bin-scala_2.12.tgz'], check=True)
         subprocess.run(['tar', '-xvzf', 'flink-1.18.1-bin-scala_2.12.tgz'], check=True)
 

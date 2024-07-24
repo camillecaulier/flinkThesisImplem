@@ -30,7 +30,7 @@ public class TestMeanOperatorJavaMultiSourceMultiAggregator {
     public boolean isJavaSource = true;
     public int sourceParallelism = 4; // THIS IS FIXED TO FOUR AND THE DATA INPUT IS FOR SORUCE PARALLELISM OF 4
     public RuntimeExecutionMode executionMode = RuntimeExecutionMode.STREAMING;
-    public int parallelism = 6;
+    public int parallelism = 10;
 
     public int aggregatorParallelism = 2;
     final Class[] operators = {

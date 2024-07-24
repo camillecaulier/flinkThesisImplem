@@ -64,13 +64,13 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
                 .partitionCustom(new RoundRobin(splitParallelism), value->value.key ) //any cast
                 .process(createPartialFunctions(true)).setParallelism(splitParallelism).name("splitOperator");
 
-        split.print("split").setParallelism(1);
-        DataStream<EventBasic> reconciliation = split
-                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(1).name("reconciliationOperator");
+//        split.print("split").setParallelism(1);
+        DataStream<EventBasic> reconciliation = split.partitionCustom(new basicHash(this.aggregatorParallelism), value->value.key)
+                .process(new MeanFunctionReconcileFakeWindowEndEvents(1000,splitParallelism)).setParallelism(aggregatorParallelism).name("reconciliationOperator");
 
 
 
-        reconciliation.print("reconciliation").setParallelism(1);
+//        reconciliation.print("reconciliation").setParallelism(1);
 
 
         return reconciliation.union(operatorBasicStream);

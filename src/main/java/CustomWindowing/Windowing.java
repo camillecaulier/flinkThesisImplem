@@ -13,13 +13,21 @@ public class Windowing {
     int destinationParallelism;
     int subtaskIndex;
 
-    private HashMap<Long, HashSet<Integer>> endWindowEventsReceived = new HashMap<>();
+    String info;
+
+    public HashMap<Long, HashSet<Integer>> endWindowEventsReceived = new HashMap<>();
     public Windowing(int sourceParallelism, int destinationParallelism, int subtaskIndex){
         this.sourceParallelism = sourceParallelism;
         this.destinationParallelism = destinationParallelism;
         this.subtaskIndex = subtaskIndex;
     }
 
+    public Windowing(int sourceParallelism, int destinationParallelism, int subtaskIndex, String info){
+        this.sourceParallelism = sourceParallelism;
+        this.destinationParallelism = destinationParallelism;
+        this.subtaskIndex = subtaskIndex;
+        this.info = info;
+    }
     public boolean isEndWindowEvent(EventBasic event){
         return Objects.equals(event.key, WINDOW_END);
     }
@@ -47,6 +55,7 @@ public class Windowing {
             HashSet<Integer> set = endWindowEventsReceived.get(event.value.timeStamp);
             set.add(event.value.valueInt);
             if(set.size() == sourceParallelism){
+
                 return event.value.timeStamp;
             }
         }else{

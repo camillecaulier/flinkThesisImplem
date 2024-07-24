@@ -34,6 +34,8 @@ public class MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming extends
     public MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming(int sourceParallelism) {
         this.sourceParallelism = sourceParallelism;
 
+//        System.out.println("here");
+
     }
 
 
@@ -67,7 +69,6 @@ public class MeanFunctionFakeWindowEndEventsMultiSourceEndEventsIncoming extends
 
        //if is last element, output all
         HashMap<String, EventBasic> sumCount = getProcessedOutput(timestamp);
-
         for(String key : sumCount.keySet()){
             EventBasic sumCountEvent = sumCount.get(key);
             EventBasic output = new EventBasic(sumCountEvent.key, sumCountEvent.value.valueInt/sumCountEvent.value.valueTmp, sumCountEvent.value.timeStamp);

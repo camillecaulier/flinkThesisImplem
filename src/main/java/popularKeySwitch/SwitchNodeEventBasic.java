@@ -14,12 +14,12 @@ public class SwitchNodeEventBasic extends ProcessFunction<EventBasic, EventBasic
     private final OutputTag<EventBasic> hotKeyOperatorTag;
     private final OutputTag<EventBasic> operator2OutputTag;
 
-    private int parallelism;
+//    private int parallelism;
 
     public SwitchNodeEventBasic(OutputTag<EventBasic> operator1OutputTag, OutputTag<EventBasic> operator2OutputTag, int parallelism) {
         this.hotKeyOperatorTag = operator1OutputTag;
         this.operator2OutputTag = operator2OutputTag;
-        this.parallelism = parallelism;
+//        this.parallelism = parallelism;
 
     }
 
@@ -48,19 +48,28 @@ public class SwitchNodeEventBasic extends ProcessFunction<EventBasic, EventBasic
 //        }
 
         if(event.key.equals(WINDOW_END)){
-            if(event.value.valueInt % 2 == 0){
-                ctx.output(hotKeyOperatorTag, event);
-            } else {
-                ctx.output(operator2OutputTag, event);
-            }
+//            if(event.value.valueInt %2 ==0 ){
+//                ctx.output(hotKeyOperatorTag, event);
+//                return;
+////                System.out.println("hotKeyOperatorTag: " + event.value.valueInt + "switchnode");
+//            }
+//            else{
+//                ctx.output(operator2OutputTag, event);
+//                System.out.println("operator2OutputTag: " + event.value.valueInt + "swtichnode");
+//            }
+            ctx.output(hotKeyOperatorTag, event);
+            ctx.output(operator2OutputTag, event);
         }
+
+        else{
 //        is popular()
-        if (event.key.equals('A') || event.key.equals('A') || event.key.equals('C')){
+            if (event.key.equals('A') || event.key.equals('A') || event.key.equals('C')){
 
-            ctx.output(hotKeyOperatorTag, event); //send to operator 1
+                ctx.output(hotKeyOperatorTag, event); //send to operator 1
 
-        } else {
-            ctx.output(operator2OutputTag, event); //send to operator 2
+            } else {
+                ctx.output(operator2OutputTag, event); //send to operator 2
+            }
         }
 
     }

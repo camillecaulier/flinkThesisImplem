@@ -33,6 +33,9 @@ public class CreateParamFiles {
     }
 
     public static void main(String[] args) throws IOException {
-        writeParams("zipf", 100000, 50,  new int[]{1,2,3},new double[]{1.0E-15,0.7, 1.4,2.1});
+//        writeParams("zipf", 100000, 50,  new int[]{1,2,3},new double[]{1.0E-15,0.7, 1.4,2.1});
+//        writeParams("zipf", 100000, 400,  new int[]{1,2,3},new double[]{1.0E-15,0.7, 1.4,2.1});
+//        writeParams("zipf", 100000, 300,  new int[]{1,2,3},new double[]{1.0E-15,0.7, 1.4,2.1});
+        writeParams("zipf", 400000, 75,  new int[]{1,2,3},new double[]{1.0E-15,0.7, 1.4,2.1});
     }
 }

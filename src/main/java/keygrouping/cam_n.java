@@ -108,7 +108,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class cam_n extends keyGroupingBasic {
     public int n;
     private HashMap<Integer, Set<String>> cardinality;
-    private HashMap<Integer, AtomicInteger> tupleCount;
+    private HashMap<Integer, Integer> tupleCount;
     int parallelism;
 
     public HashFunction[] hashFunctions;
@@ -133,11 +133,11 @@ public class cam_n extends keyGroupingBasic {
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
             cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
-            tupleCount.putIfAbsent(partition, new AtomicInteger(0));
+            tupleCount.putIfAbsent(partition, 0);
 
             Set<String> set = cardinality.get(partition);
             if (set.contains(key)) {
-                tupleCount.get(partition).incrementAndGet();
+                tupleCount.put(partition, tupleCount.get(partition) + 1);
 //                System.out.println("Choice: " + partition + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(partition).get() + " Cardinality: " + cardinality.get(partition).size());
 
                 return partition;
@@ -150,24 +150,23 @@ public class cam_n extends keyGroupingBasic {
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
             cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
-            tupleCount.putIfAbsent(partition, new AtomicInteger(0));
+            tupleCount.putIfAbsent(partition, 0);
 
-            AtomicInteger count = tupleCount.get(partition);
-            int currentCount = count.get();
-            if (currentCount < minCount) {
-                minCount = currentCount;
+            int count = tupleCount.get(partition);
+//            int currentCount = count.get();
+            if (count < minCount) {
+                minCount = count;
                 choice = partition;
             }
         }
 
         cardinality.putIfAbsent(choice, Collections.newSetFromMap(new ConcurrentHashMap<>()));
-        tupleCount.putIfAbsent(choice, new AtomicInteger(0));
+        tupleCount.putIfAbsent(choice, 0);
 
         Set<String> set = cardinality.get(choice);
-        synchronized (set) {
-            set.add(key);
-            tupleCount.get(choice).incrementAndGet();
-        }
+
+        set.add(key);
+        tupleCount.put(choice, tupleCount.get(choice) + 1);
 //        System.out.println("Choice: " + choice + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(choice).get() + " Cardinality: " + cardinality.get(choice).size());
 
         return choice;

@@ -58,17 +58,17 @@ public class Benchmark {
                 Arrays.asList(
 //                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
 
-                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanAggregateAware", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, 0),
-                        new BenchmarkParameters("MeanHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanTopKCAMRoundRobin", mainParallelism, 3, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanTopKHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanPKG", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanDChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-                        new BenchmarkParameters("MeanWChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism)
+                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism)
+//                        new BenchmarkParameters("MeancAM", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, 0),
+//                        new BenchmarkParameters("MeanHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanTopKCAMRoundRobin", mainParallelism, 3, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanTopKHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanPKG", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanDChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+//                        new BenchmarkParameters("MeanWChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism)
 
 //                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
 //                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
@@ -132,7 +132,7 @@ public class Benchmark {
         switch (nameClass) {
             case "MeanBasic":
                 return new MeanBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
-            case "MeanAggregateAware":
+            case "MeancAM":
                 return new MeanAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanRoundRobin":
                 return new MeanRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);

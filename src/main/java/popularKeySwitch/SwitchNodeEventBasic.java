@@ -63,8 +63,9 @@ public class SwitchNodeEventBasic extends ProcessFunction<EventBasic, EventBasic
 
         else{
 //        is popular()
-            if (event.key.equals('A') || event.key.equals('A') || event.key.equals('C')){
-
+//            if (event.key.equals('A') || event.key.equals('B') || event.key.equals('C') || event.key.equals('D') || event.key.equals('E')) {
+            if(event.isPopularKey()){
+//                System.out.println(event.key);
                 ctx.output(hotKeyOperatorTag, event); //send to operator 1
 
             } else {

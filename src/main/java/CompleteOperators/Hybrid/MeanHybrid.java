@@ -62,7 +62,7 @@ public class MeanHybrid extends CompleteOperator<EventBasic> {
         //how to find the number of partitions before
         DataStream<EventBasic> split = operatorSplitStream
                 .partitionCustom(new RoundRobin(splitParallelism), value->value.key ) //any cast
-                .process(createPartialFunctions(true)).setParallelism(splitParallelism).name("splitOperator");
+                .process(createPartialFunctions(true)).setParallelism(splitParallelism).name("roundRobinOperator");
 
 //        split.print("split").setParallelism(1);
         DataStream<EventBasic> reconciliation = split.partitionCustom(new basicHash(this.aggregatorParallelism), value->value.key)

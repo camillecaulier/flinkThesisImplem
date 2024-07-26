@@ -12,10 +12,12 @@ public abstract class keyGroupingBasic implements   Partitioner<String> {
 
     int[] primeNumbers = {13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67};
 
+    public float thresholdForTopK;
+
     public EndWindowPropagation endWindowPropagation;
     public keyGroupingBasic(int parallelism){
         endWindowPropagation = new EndWindowPropagation(parallelism);
-
+        thresholdForTopK = (float) 1 /parallelism;
     }
 
     @Override
@@ -37,7 +39,6 @@ public abstract class keyGroupingBasic implements   Partitioner<String> {
         }
         return hashFunctions;
     }
-
 
     public abstract int customPartition(String key, int numPartitions);
 

@@ -1,14 +1,18 @@
 package keygrouping;
 
+import eventTypes.EventBasic;
+
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class CAMRoundRobin extends keyGroupingBasic{
     public int n;
-    private ConcurrentHashMap<Integer, HashSet<String>> cardinality;
-
-    private ConcurrentHashMap<Integer, AtomicInteger> tupleCount;
+    private HashMap<Integer, Set<String>> cardinality;
+    private HashMap<Integer, Integer> tupleCount;
     int parallelism;
 
     int index = 0;
@@ -18,61 +22,57 @@ public class CAMRoundRobin extends keyGroupingBasic{
         //n being the number of choices eg two choices etc...
         this.parallelism = numPartitions;
         this.n = n_choices;
-        this.cardinality = new ConcurrentHashMap<Integer, HashSet<String>>(numPartitions);
-        this.tupleCount = new ConcurrentHashMap<Integer, AtomicInteger>(numPartitions);
+        this.cardinality = new HashMap<>(numPartitions);
+        this.tupleCount = new HashMap<>(numPartitions);
     }
 
     @Override
     public int customPartition(String key, int numPartitions) {
         //special keygrouping for popular keys
-        if(key.equals("A") || key.equals("B") || key.equals("C")){
+        if(EventBasic.isPopularKey(key)){
             return roundRobin(numPartitions);
         }
 
         int[] hashes = generateHashes(key);
+
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, new HashSet<>());
-            tupleCount.putIfAbsent(partition, new AtomicInteger(0));
+            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            tupleCount.putIfAbsent(partition, 0);
 
-            synchronized (cardinality.get(partition)) { // Synchronize on the HashSet object for the partition
-                HashSet<String> set = cardinality.get(partition);
-                if (set.contains(key)) {
-                    tupleCount.get(partition).getAndIncrement();
-                    return partition;
-                }
+            Set<String> set = cardinality.get(partition);
+            if (set.contains(key)) {
+                tupleCount.put(partition, tupleCount.get(partition) + 1);
+//                System.out.println("Choice: " + partition + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(partition).get() + " Cardinality: " + cardinality.get(partition).size());
+
+                return partition;
             }
-
         }
 
-        int minCardinality = Integer.MAX_VALUE;
+        int minCount = Integer.MAX_VALUE;
         int choice = 0;
 
-
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, new HashSet<>());
-            tupleCount.putIfAbsent(partition, new AtomicInteger(0));
+            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            tupleCount.putIfAbsent(partition, 0);
 
-            AtomicInteger count = tupleCount.get(partition);
-            synchronized (count){
-                if (count.get() < minCardinality) {
-                    minCardinality = count.get();
-                    choice = partition;
-                }
+            int count = tupleCount.get(partition);
+//            int currentCount = count.get();
+            if (count < minCount) {
+                minCount = count;
+                choice = partition;
             }
-
         }
 
-        cardinality.putIfAbsent(choice, new HashSet<>());
-        tupleCount.putIfAbsent(choice, new AtomicInteger(0));
+        cardinality.putIfAbsent(choice, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+        tupleCount.putIfAbsent(choice, 0);
 
-        synchronized (cardinality.get(choice)) {
-            HashSet<String> set = cardinality.get(choice);
-            set.add(key);
-            tupleCount.get(choice).getAndIncrement();
-        }
+        Set<String> set = cardinality.get(choice);
 
+        set.add(key);
+        tupleCount.put(choice, tupleCount.get(choice) + 1);
+//        System.out.println("Choice: " + choice + " Key: " + key + " Partition: " + numPartitions + " TupleCount: " + tupleCount.get(choice).get() + " Cardinality: " + cardinality.get(choice).size());
 
         return choice;
     }

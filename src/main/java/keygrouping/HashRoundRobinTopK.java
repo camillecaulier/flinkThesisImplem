@@ -13,7 +13,7 @@ public class HashRoundRobinTopK extends keyGroupingBasic {
 
     StreamSummary<String> streamSummary;
 
-    public HashFunction[] hashFunctions;
+//    public HashFunction[] hashFunctions;
     Long totalItems;
 
     private HashFunction h1 = Hashing.murmur3_128(13);
@@ -31,8 +31,8 @@ public class HashRoundRobinTopK extends keyGroupingBasic {
 
         streamSummary.offer(key);
 //        float probability = 2/(float)(this.parallelism  *10);
-        float probability = 2/(float)(10); // 2/(10*5 workers)
-        HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,probability,totalItems);
+//        float probability = 2/(float)(10); // 2/(10*5 workers)
+        HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,thresholdForTopK,totalItems);
         if(freqList.containsKey(key)) {
             totalItems++;
             return roundRobin(numPartitions);

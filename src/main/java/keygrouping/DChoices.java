@@ -56,15 +56,15 @@ public class DChoices extends keyGroupingBasic {
 
         streamSummary.offer(key);
 //        float probability = 2/(float)(this.parallelism  *10);
-        float probability = 2/(float)(10); // 2/(10*5 workers)
+//        float probability = 2/(float)(10); // 2/(10*5 workers)
 
         double epsilon = 0.0001;
         int Choice =2;
-        HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,probability,totalItems);
+        HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,thresholdForTopK,totalItems);
         if(freqList.containsKey(key)) {
 //            System.out.println("Key found in the stream summary");
             double pTop = ssHelper.getPTop(streamSummary,this.totalItems);
-            PHeadCount pHead = ssHelper.getPHead(streamSummary,probability,this.totalItems);
+            PHeadCount pHead = ssHelper.getPHead(streamSummary,thresholdForTopK,this.totalItems);
             double pTail = 1-pHead.probability;
             double n = (double)this.serversNo;
             double n_1_n = (n-1)/n;

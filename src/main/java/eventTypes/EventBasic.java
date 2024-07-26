@@ -49,4 +49,12 @@ public class EventBasic {
         return Objects.hash(key, value.timeStamp, value.valueInt);
     }
 
+    public static boolean isPopularKey(String key){
+        return key.equals("A") || key.equals("B") || key.equals("C") || key.equals("D") || key.equals("E");
+    }
+
+    public boolean isPopularKey(){
+        return  this.key.equals("A") ||  this.key.equals("B") || this.key.equals("C") ||  this.key.equals("D") ||  this.key.equals("E");
+    }
+
 }

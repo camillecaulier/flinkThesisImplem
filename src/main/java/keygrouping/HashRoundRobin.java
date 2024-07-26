@@ -1,5 +1,6 @@
 package keygrouping;
 
+import eventTypes.EventBasic;
 import org.apache.commons.math3.util.FastMath;
 import org.apache.flink.shaded.guava31.com.google.common.hash.HashFunction;
 import org.apache.flink.shaded.guava31.com.google.common.hash.Hashing;
@@ -13,7 +14,7 @@ public class HashRoundRobin extends keyGroupingBasic {
     }
     @Override
     public int customPartition(String key, int numPartitions) {
-        if(key.equals("A") || key.equals("B") || key.equals("C")){
+        if(EventBasic.isPopularKey(key)){
             return roundRobin(numPartitions);
         }
 

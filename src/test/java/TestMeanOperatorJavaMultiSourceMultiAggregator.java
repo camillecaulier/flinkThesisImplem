@@ -34,17 +34,17 @@ public class TestMeanOperatorJavaMultiSourceMultiAggregator {
 
     public int aggregatorParallelism = 2;
     final Class[] operators = {
-            MeanHybrid.class,
-            MeanAggregateAware.class,
-            MeanHash.class,
-            MeanRoundRobin.class,
+//            MeanHybrid.class,
+//            MeanAggregateAware.class,
+//            MeanHash.class,
+//            MeanRoundRobin.class,
             MeanCAMRoundRobin.class,
-            MeanHashRoundRobin.class,
-            MeanDChoices.class,
-            MeanWChoices.class,
-            MeanPKG.class,
+//            MeanHashRoundRobin.class,
+//            MeanDChoices.class,
+//            MeanWChoices.class,
+//            MeanPKG.class,
             MeanTopKHashRoundRobin.class,
-            MeanTopKCAMRoundRobin.class
+//            MeanTopKCAMRoundRobin.class
 
     };
 

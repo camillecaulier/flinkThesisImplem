@@ -149,7 +149,7 @@ public class cam_n extends keyGroupingBasic {
 
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            cardinality.putIfAbsent(partition, new HashSet<>());
             tupleCount.putIfAbsent(partition, 0);
 
             int count = tupleCount.get(partition);
@@ -160,7 +160,7 @@ public class cam_n extends keyGroupingBasic {
             }
         }
 
-        cardinality.putIfAbsent(choice, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+        cardinality.putIfAbsent(choice, new HashSet<>());
         tupleCount.putIfAbsent(choice, 0);
 
         Set<String> set = cardinality.get(choice);

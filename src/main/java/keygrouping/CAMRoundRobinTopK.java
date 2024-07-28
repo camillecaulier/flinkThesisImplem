@@ -43,8 +43,6 @@ public class CAMRoundRobinTopK extends keyGroupingBasic{
 
 
         streamSummary.offer(key);
-//        float probability = 2/(float)(this.parallelism  *10);
-//        float probability = 2/(float)(10); // 2/(10*5 workers)
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,thresholdForTopK ,totalItems);
         if(freqList.containsKey(key)) {
             totalItems++;
@@ -56,7 +54,7 @@ public class CAMRoundRobinTopK extends keyGroupingBasic{
 
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            cardinality.putIfAbsent(partition,new HashSet<>());
             tupleCount.putIfAbsent(partition, 0);
 
             Set<String> set = cardinality.get(partition);
@@ -73,7 +71,7 @@ public class CAMRoundRobinTopK extends keyGroupingBasic{
 
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            cardinality.putIfAbsent(partition, new HashSet<>());
             tupleCount.putIfAbsent(partition, 0);
 
             int count = tupleCount.get(partition);

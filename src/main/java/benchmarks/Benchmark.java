@@ -19,6 +19,8 @@ import CompleteOperators.Hybrid.MeanHybrid;
 import CompleteOperators.WChoices.MeanWChoices;
 import eventTypes.EventBasic;
 import org.apache.flink.api.common.RuntimeExecutionMode;
+import org.apache.flink.api.common.restartstrategy.RestartStrategies;
+import org.apache.flink.api.common.time.Time;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.sink.SinkFunction;
@@ -33,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Benchmark {
@@ -58,17 +61,18 @@ public class Benchmark {
                 Arrays.asList(
 //                        new BenchmarkParameters("MeanBasic", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
 
-                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism)
-//                        new BenchmarkParameters("MeancAM", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, 0),
-//                        new BenchmarkParameters("MeanHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanTopKCAMRoundRobin", mainParallelism, 3, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanTopKHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanPKG", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanDChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
-//                        new BenchmarkParameters("MeanWChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism)
+                        new BenchmarkParameters("MeanHybrid", mainParallelism / 2, mainParallelism / 2, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanTopKCAMRoundRobin", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanCAMRoundRobin", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanTopKHashRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanRoundRobin", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanHash", mainParallelism, 0, 0, sourceParallelism, 0),
+                        new BenchmarkParameters("MeanPKG", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanDChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeanWChoices", mainParallelism, 0, 0, sourceParallelism, aggregatorParallelism),
+                        new BenchmarkParameters("MeancAM", mainParallelism, 0, 3, sourceParallelism, aggregatorParallelism)
+
 
 //                        new BenchmarkParameters("MaxBasic", mainParallelism, 0, 0),
 //                        new BenchmarkParameters("MaxHybrid", mainParallelism/2, mainParallelism/2, 0),
@@ -89,6 +93,8 @@ public class Benchmark {
 
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setRuntimeMode(RuntimeExecutionMode.STREAMING);
+        env.setRestartStrategy(RestartStrategies.fixedDelayRestart(2, Time.of(10, TimeUnit.SECONDS)));
+
 
         long totalStart = System.currentTimeMillis();
 
@@ -134,18 +140,18 @@ public class Benchmark {
                 return new MeanBasic(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeancAM":
                 return new MeanAggregateAware(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanCAMRoundRobin":
+                return new MeanCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
+            case "MeanTopKCAMRoundRobin":
+                return new MeanTopKCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanRoundRobin":
                 return new MeanRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanHybrid":
                 return new MeanHybrid(csvFilePath, env, mainParallelism, hybridParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
-            case "MeanCAMRoundRobin":
-                return new MeanCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanHash":
                 return new MeanHash(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, 0);
             case "MeanHashRoundRobin": //
                 return new MeanHashRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
-            case "MeanTopKCAMRoundRobin":
-                return new MeanTopKCAMRoundRobin(csvFilePath, env, mainParallelism, choices, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanTopKHashRoundRobin":
                 return new MeanTopKHashRoundRobin(csvFilePath, env, mainParallelism, isJavaSource, sourceParallelism, aggregatorParallelism);
             case "MeanPKG":

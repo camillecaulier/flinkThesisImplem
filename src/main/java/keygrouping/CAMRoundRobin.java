@@ -1,6 +1,8 @@
 package keygrouping;
 
 import eventTypes.EventBasic;
+import org.apache.commons.math3.util.FastMath;
+import org.apache.flink.shaded.guava31.com.google.common.hash.HashFunction;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ public class CAMRoundRobin extends keyGroupingBasic{
     int parallelism;
 
     int index = 0;
+    public HashFunction[] hashFunctions;
 
     public CAMRoundRobin(int n_choices, int numPartitions) {
         super(numPartitions);
@@ -24,6 +27,7 @@ public class CAMRoundRobin extends keyGroupingBasic{
         this.n = n_choices;
         this.cardinality = new HashMap<>(numPartitions);
         this.tupleCount = new HashMap<>(numPartitions);
+        this.hashFunctions = createHashFunctions(n_choices);
     }
 
     @Override
@@ -37,7 +41,7 @@ public class CAMRoundRobin extends keyGroupingBasic{
 
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            cardinality.putIfAbsent(partition, new HashSet<>());
             tupleCount.putIfAbsent(partition, 0);
 
             Set<String> set = cardinality.get(partition);
@@ -54,7 +58,7 @@ public class CAMRoundRobin extends keyGroupingBasic{
 
         for (int i = 0; i < n; i++) {
             int partition = hashes[i];
-            cardinality.putIfAbsent(partition, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+            cardinality.putIfAbsent(partition, new HashSet<>());
             tupleCount.putIfAbsent(partition, 0);
 
             int count = tupleCount.get(partition);
@@ -65,7 +69,7 @@ public class CAMRoundRobin extends keyGroupingBasic{
             }
         }
 
-        cardinality.putIfAbsent(choice, Collections.newSetFromMap(new ConcurrentHashMap<>()));
+        cardinality.putIfAbsent(choice, new HashSet<>());
         tupleCount.putIfAbsent(choice, 0);
 
         Set<String> set = cardinality.get(choice);
@@ -79,10 +83,9 @@ public class CAMRoundRobin extends keyGroupingBasic{
 
     public int[] generateHashes(String input) {
         int[] hashes = new int[n];
-        int baseHash = input.hashCode();
 
         for (int i = 0; i < n; i++) {
-            hashes[i] = Math.abs((baseHash + i * 31) % this.parallelism); // Using a linear probing approach 31 helps disitribute well
+            hashes[i] = (int) (FastMath.abs(hashFunctions[i].hashBytes(input.getBytes()).asLong()) % this.parallelism); // Using a linear probing approach 31 helps distribute well
         }
 
         return hashes;

@@ -65,7 +65,6 @@ def extract_setup(line):
         else:
             raise ValueError("File parameters do not match expected format.")
         if skew == 1.0E-15:
-
             skew = 0.0
         # Create the dictionary with the extracted values
         # print(file_params)

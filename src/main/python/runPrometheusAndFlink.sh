@@ -9,6 +9,7 @@ javaSource=$5
 python fakePrometheus.py > throughput.dat &
 PROMETHEUS_PID=$!
 ./flink-1.18.1/bin/flink run flinkImplemProject.jar $source_parallelism $main_parallelism $aggregator_parallelism $dataFileDirectory $javaSource | tee output.dat
+sleep 30
 
 kill $PROMETHEUS_PID
 echo "Prometheus and Flink have been stopped"

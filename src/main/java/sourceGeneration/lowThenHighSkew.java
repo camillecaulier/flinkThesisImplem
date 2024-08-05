@@ -35,8 +35,8 @@ public class lowThenHighSkew extends RichParallelSourceFunction<EventBasic> {
     public lowThenHighSkew(int windowSize, int numWindow, int keySpaceSize, double skewness, int sourceParallelism, int parallelism) {
         this.windowSize = windowSize;
         this.numWindow = numWindow;
-        this.skewness = skewness;
-        this.keySpaceSize = keySpaceSize;
+//        this.skewness = skewness;
+//        this.keySpaceSize = keySpaceSize;
 
         this.sourceParallelism = sourceParallelism;
         this.parallelism = parallelism;
@@ -55,21 +55,21 @@ public class lowThenHighSkew extends RichParallelSourceFunction<EventBasic> {
 
     @Override
     public void run(SourceContext<EventBasic> sourceContext) throws Exception {
-        int populationSize = (int) Math.pow(26, keySpaceSize);
+        int populationSize = (int) Math.pow(27, keySpaceSize);
 
         RandomGenerator randomGenerator = new Well19937c(seed);
-        ZipfDistribution zipfDistribution = new ZipfDistribution(randomGenerator, populationSize, skewness);
+        ZipfDistribution zipfDistributionLowSkew = new ZipfDistribution(randomGenerator, populationSize, 1.0E-15);
+        ZipfDistribution zipfDistributionHighSkew = new ZipfDistribution(randomGenerator, populationSize, 2.1);
 
-        for (int window = 0; window < numWindow; window++) {
-            generateWindow(sourceContext, zipfDistribution, window * 1000L + 500);
+
+        for (int window = 0; window < numWindow/2; window++) {
+            generateWindow(sourceContext, zipfDistributionLowSkew, window * 1000L + 500);
         }
 
 
-//        for (int i = 0; i < parallelism; i++) {
-//            Value value = new Value(subtaskIndex, (numWindow+1) *1000L + 500);
-//            sourceContext.collect(new EventBasic(StringConstants.WINDOW_END, subtaskIndex, value.timeStamp));
-//        }
-
+        for (int window = numWindow/2; window < numWindow; window++) {
+            generateWindow(sourceContext, zipfDistributionHighSkew, window * 1000L + 500);
+        }
 
 
         sourceContext.close();
@@ -103,11 +103,6 @@ public class lowThenHighSkew extends RichParallelSourceFunction<EventBasic> {
         return result.toString();
     }
 
-//    public void outputEndWindow(SourceContext<EventBasic> sourceContext, long timestamp) {
-//        for(int i = 0; i < parallelism; i++){
-//            sourceContext.collect(new EventBasic(WINDOW_END, subtaskIndex, timestamp));
-//        }
-//    }
 
 
     @Override

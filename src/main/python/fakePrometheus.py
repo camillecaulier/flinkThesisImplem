@@ -1,9 +1,10 @@
 import requests
 import time
-
+import sys
 # URL for Flink REST API
 flink_url = "http://127.0.0.1:8081"
 print("starting fake prometheus")
+sys.stdout.flush()
 # NAME = 'name'
 # JOB_NAME = 'job name'
 accumulateStr = "accumulate"
@@ -38,7 +39,7 @@ def get_running_job():
     try:
         response = requests.get(f"{flink_url}/jobs/")
         jobs_data = response.json()
-        print(jobs_data)
+        # print(jobs_data)
         for job in jobs_data['jobs']:
             if job['status'] == 'RUNNING':
                 return job['id']
@@ -265,7 +266,7 @@ while True:
         data = set_up_data(job_running)
         data = get_all_data(data, job_id=job_running)
         print(data)
-
+        sys.stdout.flush()
         none_count = 0
 
 
@@ -289,4 +290,3 @@ while True:
 
 
 #python3 ./src/main/python/fakePrometheus.py
-

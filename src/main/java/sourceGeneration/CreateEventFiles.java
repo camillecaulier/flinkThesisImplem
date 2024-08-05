@@ -182,15 +182,15 @@ public class CreateEventFiles {
 //            }
 //        }
 
-        double[] skewValues = {1.4};
-        int[] keySizes = {2};
-        int[] windows = {2};
-        int stampsPerSecond = 20;
+        double[] skewValues = {0.000000000000001, 0.7,1.4, 2.1};
+        int[] keySizes = {1,2,3};
+        int[] windows = {1};
+        int stampsPerSecond = 100000;
         for (int keySize : keySizes) {
             for (int time : windows) {
                 for (double skew : skewValues) {
-                    String filename = "dataJavaMultiSourceTestData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
-                    zipfDistributionMultipleSources(stampsPerSecond, filename, keySize, time, skew,4);
+                    String filename = "exampleMultiSourceData/zipf_distribution_"+ stampsPerSecond+"_" + keySize + "_" + time + "_" + skew + ".csv";
+                    zipfDistributionMultipleSources(stampsPerSecond, filename, keySize, time, skew,24);
                 }
             }
         }

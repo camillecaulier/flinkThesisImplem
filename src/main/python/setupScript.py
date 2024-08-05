@@ -5,7 +5,7 @@ import glob
 import tarfile
 
 
-def configure_flink(flink_dir, task_slots=4, task_managers=8, memory_size='3072m'):
+def configure_flink(flink_dir, task_slots=4, task_managers=24, memory_size='4096m'):
     # Path to the Flink configuration file
     conf_path = os.path.join(flink_dir, 'conf', 'flink-conf.yaml')
     workers_path = os.path.join(flink_dir, 'conf', 'workers')

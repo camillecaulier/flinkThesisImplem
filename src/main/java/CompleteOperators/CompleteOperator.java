@@ -21,6 +21,7 @@ import processFunctions.reconciliationFunctionsComplete.MeanFunctionFakeWindowSi
 import processFunctions.reconciliationFunctionsComplete.MeanFunctionReconcileFakeWindowEndEvents;
 import sourceGeneration.ZipfStringSource;
 import sourceGeneration.ZipfStringSourceRichProcessFunctionEndWindow;
+import sourceGeneration.lowThenHighSkew;
 
 import java.time.Duration;
 
@@ -100,9 +101,21 @@ public abstract class CompleteOperator<T> {
         else if(isJavaSource && sourceParallelism > 1){
             System.out.println("using java multi source");
             JavaSourceParameters parameters = getJavaSourceParameters(file);
-            return env.addSource(new ZipfStringSourceRichProcessFunctionEndWindow(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism, partialFunctionParallelism))
-                    .setParallelism(sourceParallelism)
-                    .name("source");
+            if(parameters.distribution.equals("zipf")){
+                return env.addSource(new ZipfStringSourceRichProcessFunctionEndWindow(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism, partialFunctionParallelism))
+                        .setParallelism(sourceParallelism)
+                        .name("source");
+            }
+            else if(parameters.distribution.equals("lowThenHighSkew")){
+                return env.addSource(new lowThenHighSkew(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism, partialFunctionParallelism))
+                        .setParallelism(sourceParallelism)
+                        .name("source");
+
+            }
+            else{
+                return null;
+            }
+
         }
         else {
             // create source from csv file

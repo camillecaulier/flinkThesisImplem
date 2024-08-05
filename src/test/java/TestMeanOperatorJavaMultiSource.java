@@ -103,11 +103,11 @@ public class TestMeanOperatorJavaMultiSource {
 //                "dataJavaMultiSourceTestData/zipf_distribution_10000_2_5_1.4.csv"
 //        };
 //        JavaSourceParameters[] javaSourceParameters = {
-//                new JavaSourceParameters("zipfdistribution", 40, 2, 2, 1.4),
-//                new JavaSourceParameters("zipfdistribution", 100, 10, 2, 1.0E-15),
-//                new JavaSourceParameters("zipfdistribution", 100, 10, 2, 1.4),
-//                new JavaSourceParameters("zipfdistribution", 10000, 5, 2, 1.0E-15),
-//                new JavaSourceParameters("zipfdistribution", 10000, 5, 2, 1.4)
+//                new JavaSourceParameters("zipf", 40, 2, 2, 1.4),
+//                new JavaSourceParameters("zipf", 100, 10, 2, 1.0E-15),
+//                new JavaSourceParameters("zipf", 100, 10, 2, 1.4),
+//                new JavaSourceParameters("zipf", 10000, 5, 2, 1.0E-15),
+//                new JavaSourceParameters("zipf", 10000, 5, 2, 1.4)
 //        };
 //
 //        for(int i = 0 ; i < sourceFiles.length; i++){
@@ -150,7 +150,7 @@ public class TestMeanOperatorJavaMultiSource {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setRuntimeMode(executionMode);
 
-        String javaSourceParameters = "zipfdistribution,10000,5,2,1.0E-15";
+        String javaSourceParameters = "zipf,10000,5,2,1.0E-15";
         String csvFilePathCorrect = "src/test/java/javaMultiSourceTestCorrectValues/zipf_distribution_10000_2_5_1.0E-15_correct.csv";
         for(Class operatorClass : operators){
             System.out.println(operatorClass);
@@ -192,7 +192,7 @@ public class TestMeanOperatorJavaMultiSource {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
         env.setRuntimeMode(RuntimeExecutionMode.AUTOMATIC);
 
-        String csvFilePath = "zipfdistribution,100,10,2,1.0E-15";
+        String csvFilePath = "zipf,100,10,2,1.0E-15";
         String csvFilePathCorrect = "src/test/java/javaMultiSourceTestCorrectValues/zipf_distribution_100_2_10_1.0E-15_correct.csv";
         for(Class operatorClass : operators){
             System.out.println(operatorClass);
@@ -235,7 +235,7 @@ public class TestMeanOperatorJavaMultiSource {
         final StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
 //        env.setRuntimeMode(executionMode);
 
-        String csvFilePath = "zipfdistribution,10000,5,2,1.4";
+        String csvFilePath = "zipf,10000,5,2,1.4";
         String csvFilePathCorrect = "src/test/java/javaMultiSourceTestCorrectValues/zipf_distribution_10000_2_5_1.4_correct.csv";
         for(Class operatorClass : operators){
             System.out.println(operatorClass);
@@ -280,7 +280,7 @@ public class TestMeanOperatorJavaMultiSource {
         env.setRuntimeMode(executionMode);
 
         //distribution, windowSize, numWindow, keySpaceSize, skewness
-        String csvFilePath = "zipfdistribution,100,10,2,1.4";
+        String csvFilePath = "zipf,100,10,2,1.4";
         String csvFilePathCorrect = "src/test/java/javaMultiSourceTestCorrectValues/zipf_distribution_100_2_10_1.4_correct.csv";
         for(Class operatorClass : operators){
             System.out.println(operatorClass);
@@ -322,7 +322,7 @@ public class TestMeanOperatorJavaMultiSource {
         env.setRuntimeMode(executionMode);
 
         //distribution, windowSize, numWindow, keySpaceSize, skewness
-        String csvFilePath = "zipfdistribution,20,2,2,1.4";
+        String csvFilePath = "zipf,20,2,2,1.4";
         String csvFilePathCorrect = "src/test/java/javaMultiSourceTestCorrectValues/zipf_distribution_20_2_2_1.4_correct.csv";
         for(Class operatorClass : operators){
             System.out.println(operatorClass);

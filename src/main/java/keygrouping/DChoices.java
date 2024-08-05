@@ -55,9 +55,6 @@ public class DChoices extends keyGroupingBasic {
 
 
         streamSummary.offer(key);
-//        float probability = 2/(float)(this.parallelism  *10);
-//        float probability = 2/(float)(10); // 2/(10*5 workers)
-
         double epsilon = 0.0001;
         int Choice =2;
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,thresholdForTopK,totalItems);
@@ -93,19 +90,23 @@ public class DChoices extends keyGroupingBasic {
             int[] choice;
             byte[] b = key.toString().getBytes();
 
-            int selected;
+//            int selected;
             if(Choice < this.serversNo) {
                 choice = new int[Choice];
                 while(counter < Choice) {
                     choice[counter] =  FastMath.abs(hash[counter].hashBytes(b).asInt()%serversNo);
                     counter++;
                 }
-                selected = selectMinChoice(targetTaskStats,choice);
-            }else {
-                selected = selectMinChoice(targetTaskStats);
+
+            }else { // if choice = W then this is just doing W - Choices
+                choice = new int[this.serversNo];
+                while(counter < this.serversNo) {
+                    choice[counter] =  counter;
+                    counter++;
+                }
             }
 
-//            int selected = selectMinChoice(targetTaskStats,choice);
+            int selected = selectMinChoice(targetTaskStats,choice);
             targetTaskStats[selected]++;
             totalItems++;
             return selected;

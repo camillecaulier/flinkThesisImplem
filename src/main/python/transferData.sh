@@ -27,5 +27,14 @@ scp ./param_100000_360.csv ccaulier@access.grid5000.fr:$location/param_100000_36
 echo "param_100000_360.csv transferred"
 scp ./param_400000_90.csv ccaulier@access.grid5000.fr:$location/param_400000_90.csv
 echo "param_400000_90.csv transferred"
+scp ./param_100000_1440.csv ccaulier@access.grid5000.fr:$location/param_100000_1440.csv
+echo "param_100000_1440.csv transferred"
+scp ./param_400000_360.csv ccaulier@access.grid5000.fr:$location/param_400000_360.csv
+echo "param_400000_360.csv transferred"
+scp ./param_lowThenHighSkew.csv ccaulier@access.grid5000.fr:$location/param_lowThenHighSkew.csv
+echo "param_lowThenHighSkew.csv transferred"
+scp ./param_lowThenHighSkewSmall.csv ccaulier@access.grid5000.fr:$location/param_lowThenHighSkewSmall.csv
+echo "param_lowThenHighSkewSmall.csv transferred"
+
 
 

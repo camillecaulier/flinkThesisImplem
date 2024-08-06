@@ -1,3 +1,5 @@
+import numpy as np
+
 
 def gini_index(values):
     """
@@ -6,8 +8,11 @@ def gini_index(values):
     :param values: List of int
     :return: Gini index (floaty)
     """
+    # print(values)
     if not values:
         return 0  # Return 0 if the list is empty
+    if values is np.nan:
+        return 0
 
     # Sort the list of values in ascending order
     sorted_values = sorted(values)

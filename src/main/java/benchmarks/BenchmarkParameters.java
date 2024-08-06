@@ -4,7 +4,7 @@ public class BenchmarkParameters {
     int MainParallelism;
     int HybridParallelism;
     int Choices;
-    String operator;
+    public String operator;
 
     int sourceParallelism;
     int aggregatorParallelism;

@@ -21,8 +21,7 @@ public class lowThenHighSkew extends RichParallelSourceFunction<EventBasic> {
     private volatile int windowSize;
     private volatile int numWindow;
     private  long seed = 123456L;
-    private double skewness;
-    private int keySpaceSize;
+
     private int sourceParallelism;
 
     private int parallelism;
@@ -32,12 +31,9 @@ public class lowThenHighSkew extends RichParallelSourceFunction<EventBasic> {
     Windowing windowing;
 
 
-    public lowThenHighSkew(int windowSize, int numWindow, int keySpaceSize, double skewness, int sourceParallelism, int parallelism) {
+    public lowThenHighSkew(int windowSize, int numWindow, int sourceParallelism, int parallelism) {
         this.windowSize = windowSize;
         this.numWindow = numWindow;
-//        this.skewness = skewness;
-//        this.keySpaceSize = keySpaceSize;
-
         this.sourceParallelism = sourceParallelism;
         this.parallelism = parallelism;
 
@@ -55,19 +51,23 @@ public class lowThenHighSkew extends RichParallelSourceFunction<EventBasic> {
 
     @Override
     public void run(SourceContext<EventBasic> sourceContext) throws Exception {
-        int populationSize = (int) Math.pow(27, keySpaceSize);
+        int populationSize = (int) Math.pow(27, 2);
 
-        RandomGenerator randomGenerator = new Well19937c(seed);
-        ZipfDistribution zipfDistributionLowSkew = new ZipfDistribution(randomGenerator, populationSize, 1.0E-15);
-        ZipfDistribution zipfDistributionHighSkew = new ZipfDistribution(randomGenerator, populationSize, 2.1);
+        RandomGenerator randomGeneratorLowSkew = new Well19937c(seed);
+        RandomGenerator randomGeneratorHighSkew = new Well19937c(seed + 1);
+
+        // Low and high skew Zipf distributions
+        ZipfDistribution zipfDistributionLowSkew = new ZipfDistribution(randomGeneratorLowSkew, populationSize, 1.0E-15);
+        ZipfDistribution zipfDistributionHighSkew = new ZipfDistribution(randomGeneratorHighSkew, populationSize, 2.1);
 
 
-        for (int window = 0; window < numWindow/2; window++) {
+
+        for (int window = 0; window <(int) numWindow/2; window++) {
             generateWindow(sourceContext, zipfDistributionLowSkew, window * 1000L + 500);
         }
 
 
-        for (int window = numWindow/2; window < numWindow; window++) {
+        for (int window = (int)  numWindow/2; window < numWindow; window++) {
             generateWindow(sourceContext, zipfDistributionHighSkew, window * 1000L + 500);
         }
 

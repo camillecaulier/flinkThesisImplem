@@ -107,7 +107,7 @@ public abstract class CompleteOperator<T> {
                         .name("source");
             }
             else if(parameters.distribution.equals("lowThenHighSkew")){
-                return env.addSource(new lowThenHighSkew(parameters.windowSize, parameters.numWindow, parameters.keySpaceSize, parameters.skewness, sourceParallelism, partialFunctionParallelism))
+                return env.addSource(new lowThenHighSkew(parameters.windowSize, parameters.numWindow, sourceParallelism, partialFunctionParallelism))
                         .setParallelism(sourceParallelism)
                         .name("source");
 

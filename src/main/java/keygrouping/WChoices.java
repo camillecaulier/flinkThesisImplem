@@ -65,7 +65,7 @@ public class WChoices extends keyGroupingBasic {
 
     }
 
-    int selectMinChoice(long loadVector[]) {
+    int selectMinChoice(long[] loadVector) {
         int index =0;
         for(int i = 0; i< this.parallelism; i++) {
             if (loadVector[i]<loadVector[index])

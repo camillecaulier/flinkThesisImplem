@@ -15,6 +15,7 @@ public class HashRoundRobinTopK extends keyGroupingBasic {
 
 //    public HashFunction[] hashFunctions;
     Long totalItems;
+    Long popularItems;
 
     private HashFunction h1 = Hashing.murmur3_128(13);
 
@@ -23,18 +24,21 @@ public class HashRoundRobinTopK extends keyGroupingBasic {
         super(parallelism);
         streamSummary = new StreamSummary<String>(StreamSummaryHelper.capacity);
         totalItems = (long) 0;
+        popularItems = (long) 0;
 
     }
     @Override
     public int customPartition(String key, int numPartitions) {
         StreamSummaryHelper ssHelper = new StreamSummaryHelper();
-
+        totalItems++;
         streamSummary.offer(key);
 //        float probability = 2/(float)(this.parallelism  *10);
 //        float probability = 2/(float)(10); // 2/(10*5 workers)
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,thresholdForTopK,totalItems);
         if(freqList.containsKey(key)) {
-            totalItems++;
+//            System.out.println("Key: " + key + " is in topK");
+
+
             return roundRobin(numPartitions);
         }
 

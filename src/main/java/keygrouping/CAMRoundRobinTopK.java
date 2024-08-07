@@ -41,11 +41,11 @@ public class CAMRoundRobinTopK extends keyGroupingBasic{
         //special keygrouping for popular keys
         StreamSummaryHelper ssHelper = new StreamSummaryHelper();
 
-
+        totalItems++;
         streamSummary.offer(key);
         HashMap<String,Long> freqList = ssHelper.getTopK(streamSummary,thresholdForTopK ,totalItems);
         if(freqList.containsKey(key)) {
-            totalItems++;
+
             return roundRobin(numPartitions);
         }
 
